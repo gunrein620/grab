@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>냥글냥글 실험실</title>
+  <style>
+    :root {
+      --bg-top: #fff5df;
+      --bg-bottom: #ffd3a8;
+      --card: rgba(255, 251, 243, 0.84);
+      --line: #3b2415;
+      --accent: #f97316;
+      --accent-soft: #fdba74;
+      --accent-deep: #dd6b20;
+      --green: #2f855a;
+      --shadow: 0 18px 45px rgba(94, 45, 15, 0.16);
+      --laser-x: 50%;
+      --laser-y: 58%;
+      --pupil-x: 0px;
+      --pupil-y: 0px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--line);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(255, 237, 213, 0.9), transparent 24%),
+        linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      overflow-x: hidden;
+    }
+
+    .page {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+      position: relative;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 3px solid rgba(59, 36, 21, 0.08);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intro {
+      padding: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 237, 213, 0.95);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 52ch;
+      font-size: 1.05rem;
+      line-height: 1.65;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 18px;
+      padding: 16px 18px;
+      font: inherit;
+      font-weight: 800;
+      color: #fffaf4;
+      background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+      box-shadow: 0 12px 22px rgba(249, 115, 22, 0.26);
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 30px rgba(249, 115, 22, 0.28);
+      filter: saturate(1.08);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.985);
+    }
+
+    button.secondary {
+      color: var(--line);
+      background: linear-gradient(135deg, #fff7ed, #fed7aa);
+      box-shadow: 0 12px 22px rgba(148, 91, 28, 0.14);
+    }
+
+    .status-bar {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: rgba(255, 248, 235, 0.9);
+      border: 1px dashed rgba(59, 36, 21, 0.18);
+    }
+
+    .status-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .mood-track {
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255, 213, 170, 0.6);
+      overflow: hidden;
+    }
+
+    .mood-fill {
+      width: 42%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f59e0b, #22c55e);
+      transition: width 240ms ease;
+    }
+
+    .mood-copy {
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    .cat-zone {
+      min-height: 560px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.9), transparent 26%),
+        linear-gradient(180deg, rgba(255, 250, 240, 0.85), rgba(255, 230, 192, 0.95));
+    }
+
+    .cat-stage {
+      width: min(420px, 100%);
+      aspect-ratio: 1 / 1.1;
+      position: relative;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .laser-dot {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      left: var(--laser-x);
+      top: var(--laser-y);
+      transform: translate(-50%, -50%) scale(0.25);
+      background: radial-gradient(circle, #fffbfb, #ef4444 38%, #b91c1c 72%);
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.65);
+      opacity: 0;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .cat-stage.laser-on .laser-dot {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .cat {
+      position: relative;
+      width: 280px;
+      height: 330px;
+      animation: floaty 4s ease-in-out infinite;
+      z-index: 3;
+    }
+
+    .cat-stage.excited .cat {
+      animation-duration: 1.2s;
+    }
+
+    .tail {
+      position: absolute;
+      right: -28px;
+      bottom: 72px;
+      width: 118px;
+      height: 28px;
+      border-radius: 999px;
+      border: 8px solid var(--line);
+      border-left: 0;
+      transform-origin: left center;
+      transform: rotate(24deg);
+      background: transparent;
+      z-index: 0;
+      animation: tail-wag 2.6s ease-in-out infinite;
+    }
+
+    .cat-stage.excited .tail {
+      animation-duration: 0.7s;
+    }
+
+    .body {
+      position: absolute;
+      left: 36px;
+      right: 36px;
+      bottom: 0;
+      height: 172px;
+      background: #f7bf63;
+      border: 8px solid var(--line);
+      border-radius: 46% 46% 38% 38% / 44% 44% 22% 22%;
+      z-index: 1;
+    }
+
+    .belly {
+      position: absolute;
+      inset: 34px 44px 20px;
+      background: rgba(255, 242, 216, 0.92);
+      border-radius: 44%;
+    }
+
+    .head {
+      position: absolute;
+      left: 30px;
+      top: 24px;
+      width: 220px;
+      height: 204px;
+      background: #ffd27b;
+      border: 8px solid var(--line);
+      border-radius: 48%;
+      z-index: 2;
+    }
+
+    .ear {
+      position: absolute;
+      top: -24px;
+      width: 76px;
+      height: 90px;
+      background: #f7bf63;
+      border: 8px solid var(--line);
+      border-radius: 28px 28px 12px 12px;
+      z-index: -1;
+    }
+
+    .ear::after {
+      content: "";
+      position: absolute;
+      inset: 16px 14px 10px;
+      background: #ffc9cf;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+
+    .ear.left {
+      left: 8px;
+      transform: rotate(-16deg);
+    }
+
+    .ear.right {
+      right: 8px;
+      transform: rotate(16deg);
+    }
+
+    .eye {
+      position: absolute;
+      top: 76px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fffef7;
+      border: 6px solid var(--line);
+      overflow: hidden;
+    }
+
+    .eye.left {
+      left: 40px;
+    }
+
+    .eye.right {
+      right: 40px;
+    }
+
+    .pupil {
+      position: absolute;
+      left: 16px;
+      top: 15px;
+      width: 20px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--line);
+      transform: translate(var(--pupil-x), var(--pupil-y));
+      transition: transform 70ms linear;
+    }
+
+    .eye::after {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .nose {
+      position: absolute;
+      left: 50%;
+      top: 120px;
+      width: 24px;
+      height: 18px;
+      border-radius: 50% 50% 64% 64%;
+      background: #ff8da1;
+      transform: translateX(-50%);
+    }
+
+    .mouth {
+      position: absolute;
+      left: 50%;
+      top: 146px;
+      width: 74px;
+      height: 42px;
+      transform: translateX(-50%);
+    }
+
+    .mouth::before,
+    .mouth::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 34px;
+      height: 24px;
+      border: 5px solid var(--line);
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0 0 24px 24px;
+    }
+
+    .mouth::before {
+      left: 4px;
+      transform: rotate(8deg);
+    }
+
+    .mouth::after {
+      right: 4px;
+      transform: rotate(-8deg);
+    }
+
+    .whisker {
+      position: absolute;
+      top: 132px;
+      width: 72px;
+      height: 2px;
+      background: var(--line);
+      opacity: 0.7;
+    }
+
+    .whisker.left.one { left: -32px; transform: rotate(12deg); }
+    .whisker.left.two { left: -30px; top: 144px; }
+    .whisker.left.three { left: -32px; top: 156px; transform: rotate(-12deg); }
+    .whisker.right.one { right: -32px; transform: rotate(-12deg); }
+    .whisker.right.two { right: -30px; top: 144px; }
+    .whisker.right.three { right: -32px; top: 156px; transform: rotate(12deg); }
+
+    .paw {
+      position: absolute;
+      bottom: 12px;
+      width: 64px;
+      height: 88px;
+      background: #ffd27b;
+      border: 8px solid var(--line);
+      border-radius: 34px;
+      z-index: 2;
+    }
+
+    .paw.left {
+      left: 72px;
+    }
+
+    .paw.right {
+      right: 72px;
+    }
+
+    .paw.raise {
+      animation: paw-tap 0.48s ease;
+    }
+
+    .badge-row {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 247, 237, 0.92);
+      border: 1px solid rgba(59, 36, 21, 0.12);
+      font-weight: 700;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 248, 235, 0.92);
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .floating-zone {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 8;
+    }
+
+    .float-thing {
+      position: absolute;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      animation: drift-up 1.8s ease forwards;
+      user-select: none;
+      filter: drop-shadow(0 8px 10px rgba(59, 36, 21, 0.16));
+    }
+
+    .paw-print {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      transform: translate(-50%, -50%) rotate(var(--rotation));
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .paw-print::before,
+    .paw-print::after,
+    .paw-print span,
+    .paw-print i {
+      content: "";
+      position: absolute;
+      background: rgba(124, 58, 18, 0.14);
+      border-radius: 50%;
+    }
+
+    .paw-print::before {
+      width: 20px;
+      height: 22px;
+      left: 20px;
+      bottom: 10px;
+    }
+
+    .paw-print::after {
+      width: 12px;
+      height: 16px;
+      left: 5px;
+      top: 18px;
+    }
+
+    .paw-print span {
+      width: 12px;
+      height: 16px;
+      left: 23px;
+      top: 6px;
+    }
+
+    .paw-print i {
+      width: 12px;
+      height: 16px;
+      right: 5px;
+      top: 18px;
+    }
+
+    .cat-zone::after {
+      content: "";
+      position: absolute;
+      inset: auto 18px 18px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(97, 57, 24, 0.1);
+      filter: blur(10px);
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes tail-wag {
+      0%, 100% { transform: rotate(24deg); }
+      50% { transform: rotate(-2deg); }
+    }
+
+    @keyframes paw-tap {
+      0% { transform: translateY(0); }
+      45% { transform: translateY(-26px) rotate(-8deg); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes drift-up {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.75) rotate(-6deg);
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-80px) scale(1.2) rotate(10deg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .cat-zone {
+        min-height: 500px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 20px, 1080px);
+        padding-top: 20px;
+      }
+
+      .intro,
+      .cat-zone {
+        padding: 22px;
+      }
+
+      .control-grid,
+      .scoreboard {
+        grid-template-columns: 1fr;
+      }
+
+      .cat {
+        transform: scale(0.92);
+      }
+
+      .cat-stage.excited .cat,
+      .cat {
+        animation-name: floaty-mobile;
+      }
+
+      @keyframes floaty-mobile {
+        0%, 100% { transform: scale(0.92) translateY(0); }
+        50% { transform: scale(0.92) translateY(-10px); }
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="floating-zone" id="floatingZone"></div>
+
+    <section class="hero">
+      <article class="panel intro">
+        <div class="eyebrow">🐾 오늘의 임무: 고양이를 최대한 신나게 만들기</div>
+        <h1>냥글냥글<br>실험실</h1>
+        <p>
+          마우스를 움직이면 고양이가 시선을 따라오고, 버튼을 누르면 간식 먹기, 레이저 쫓기,
+          냥냥 소환 같은 장난이 시작됩니다. 목표는 단순합니다. 이 페이지를 점점 더 고양이답게 만드는 것.
+        </p>
+
+        <div class="control-grid">
+          <button id="summonBtn">냥냥 소환</button>
+          <button id="treatBtn">간식 주기</button>
+          <button id="laserBtn">레이저 놀이 시작</button>
+          <button class="secondary" id="chaosBtn">고양이 대난장</button>
+        </div>
+
+        <section class="status-bar">
+          <div class="status-head">
+            <strong>고양이 기분 지수</strong>
+            <span id="moodValue">42%</span>
+          </div>
+          <div class="mood-track" aria-hidden="true">
+            <div class="mood-fill" id="moodFill"></div>
+          </div>
+          <div class="mood-copy" id="moodCopy">평온하지만 뭔가 재밌는 일을 기다리는 중입니다.</div>
+        </section>
+
+        <div class="badge-row">
+          <div class="badge" id="titleBadge">호칭: 소파의 지배자</div>
+          <div class="badge" id="laserBadge">레이저 상태: 대기 중</div>
+        </div>
+
+        <section class="scoreboard">
+          <div class="stat">
+            <strong id="treatCount">0</strong>
+            <span>먹은 간식</span>
+          </div>
+          <div class="stat">
+            <strong id="summonCount">0</strong>
+            <span>소환된 냥이</span>
+          </div>
+          <div class="stat">
+            <strong id="chaosCount">0</strong>
+            <span>대난장 횟수</span>
+          </div>
+        </section>
+      </article>
+
+      <section class="panel cat-zone" id="catZone">
+        <div class="cat-stage" id="catStage">
+          <div class="laser-dot" aria-hidden="true"></div>
+
+          <div class="cat" aria-label="귀여운 고양이 일러스트">
+            <div class="tail"></div>
+            <div class="body">
+              <div class="belly"></div>
+            </div>
+            <div class="head">
+              <div class="ear left"></div>
+              <div class="ear right"></div>
+              <div class="eye left"><div class="pupil"></div></div>
+              <div class="eye right"><div class="pupil"></div></div>
+              <div class="nose"></div>
+              <div class="mouth"></div>
+              <div class="whisker left one"></div>
+              <div class="whisker left two"></div>
+              <div class="whisker left three"></div>
+              <div class="whisker right one"></div>
+              <div class="whisker right two"></div>
+              <div class="whisker right three"></div>
+            </div>
+            <div class="paw left" id="leftPaw"></div>
+            <div class="paw right" id="rightPaw"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const catZone = document.getElementById("catZone");
+    const catStage = document.getElementById("catStage");
+    const floatingZone = document.getElementById("floatingZone");
+    const moodFill = document.getElementById("moodFill");
+    const moodValue = document.getElementById("moodValue");
+    const moodCopy = document.getElementById("moodCopy");
+    const titleBadge = document.getElementById("titleBadge");
+    const laserBadge = document.getElementById("laserBadge");
+    const treatCount = document.getElementById("treatCount");
+    const summonCount = document.getElementById("summonCount");
+    const chaosCount = document.getElementById("chaosCount");
+    const leftPaw = document.getElementById("leftPaw");
+    const rightPaw = document.getElementById("rightPaw");
+
+    const moods = [
+      "평온하지만 뭔가 재밌는 일을 기다리는 중입니다.",
+      "꼬리가 살짝 흔들립니다. 기분이 올라가는 중입니다.",
+      "지금 매우 만족스럽습니다. 간식 담당자를 신뢰합니다.",
+      "집사가 꽤 유능하다고 판단했습니다.",
+      "한계치 근처입니다. 곧 소파 위 스프린트를 시작할 수 있습니다."
+    ];
+
+    const titles = [
+      "호칭: 소파의 지배자",
+      "호칭: 캣닢 감별사",
+      "호칭: 새벽 질주 전문가",
+      "호칭: 박스 침공 대장",
+      "호칭: 레이저 추적 마스터"
+    ];
+
+    const floaters = ["🐱", "🐾", "🐟", "🧶", "✨", "😺"];
+
+    let mood = 42;
+    let treats = 0;
+    let summons = 0;
+    let chaos = 0;
+    let laserMode = false;
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function updateMood(nextMood) {
+      mood = clamp(nextMood, 0, 100);
+      moodFill.style.width = mood + "%";
+      moodValue.textContent = mood + "%";
+
+      const moodIndex =
+        mood < 25 ? 0 :
+        mood < 50 ? 1 :
+        mood < 75 ? 2 :
+        mood < 95 ? 3 : 4;
+
+      moodCopy.textContent = moods[moodIndex];
+      titleBadge.textContent = titles[moodIndex];
+    }
+
+    function animatePaw(target) {
+      target.classList.remove("raise");
+      void target.offsetWidth;
+      target.classList.add("raise");
+    }
+
+    function spawnFloater(x, y, symbol) {
+      const item = document.createElement("div");
+      const floatingRect = floatingZone.getBoundingClientRect();
+      item.className = "float-thing";
+      item.textContent = symbol;
+      item.style.left = x - floatingRect.left + "px";
+      item.style.top = y - floatingRect.top + "px";
+      floatingZone.appendChild(item);
+
+      setTimeout(() => {
+        item.remove();
+      }, 1800);
+    }
+
+    function sprinklePaws(amount) {
+      const zoneRect = catZone.getBoundingClientRect();
+
+      for (let index = 0; index < amount; index += 1) {
+        const paw = document.createElement("div");
+        paw.className = "paw-print";
+        paw.style.left = Math.random() * zoneRect.width + "px";
+        paw.style.top = Math.random() * zoneRect.height + "px";
+        paw.style.setProperty("--rotation", (Math.random() * 70 - 35) + "deg");
+        paw.innerHTML = "<span></span><i></i>";
+        catZone.appendChild(paw);
+
+        setTimeout(() => {
+          paw.remove();
+        }, 2600);
+      }
+    }
+
+    function setLaserFromPointer(clientX, clientY) {
+      const rect = catZone.getBoundingClientRect();
+      const relativeX = clamp(clientX - rect.left, 18, rect.width - 18);
+      const relativeY = clamp(clientY - rect.top, 18, rect.height - 18);
+      const percentX = (relativeX / rect.width) * 100;
+      const percentY = (relativeY / rect.height) * 100;
+
+      root.style.setProperty("--laser-x", percentX + "%");
+      root.style.setProperty("--laser-y", percentY + "%");
+    }
+
+    function setEyeTracking(clientX, clientY) {
+      const rect = catZone.getBoundingClientRect();
+      const zoneCenterX = rect.left + rect.width / 2;
+      const zoneCenterY = rect.top + rect.height / 2 - 40;
+      const deltaX = clamp((clientX - zoneCenterX) / 28, -8, 8);
+      const deltaY = clamp((clientY - zoneCenterY) / 36, -6, 6);
+
+      root.style.setProperty("--pupil-x", deltaX + "px");
+      root.style.setProperty("--pupil-y", deltaY + "px");
+    }
+
+    function handleTreat() {
+      treats += 1;
+      treatCount.textContent = treats;
+      updateMood(mood + 11);
+      animatePaw(Math.random() > 0.5 ? leftPaw : rightPaw);
+
+      const rect = catZone.getBoundingClientRect();
+      spawnFloater(rect.left + rect.width * 0.55, rect.top + rect.height * 0.26, "🐟");
+      spawnFloater(rect.left + rect.width * 0.44, rect.top + rect.height * 0.22, "😻");
+    }
+
+    function handleSummon() {
+      summons += 1;
+      summonCount.textContent = summons;
+      updateMood(mood + 6);
+
+      const rect = floatingZone.getBoundingClientRect();
+      for (let index = 0; index < 6; index += 1) {
+        spawnFloater(
+          rect.left + Math.random() * (rect.width - 30) + 10,
+          rect.top + Math.random() * (rect.height * 0.5) + 60,
+          floaters[Math.floor(Math.random() * floaters.length)]
+        );
+      }
+    }
+
+    function toggleLaser() {
+      laserMode = !laserMode;
+      catStage.classList.toggle("laser-on", laserMode);
+      catStage.classList.toggle("excited", laserMode);
+      laserBadge.textContent = laserMode ? "레이저 상태: 추적 중" : "레이저 상태: 대기 중";
+      document.getElementById("laserBtn").textContent = laserMode ? "레이저 놀이 종료" : "레이저 놀이 시작";
+      updateMood(mood + (laserMode ? 9 : -4));
+    }
+
+    function handleChaos() {
+      chaos += 1;
+      chaosCount.textContent = chaos;
+      updateMood(mood + 15);
+      catStage.classList.add("excited");
+      sprinklePaws(10);
+
+      for (let index = 0; index < 12; index += 1) {
+        const rect = floatingZone.getBoundingClientRect();
+        spawnFloater(
+          rect.left + Math.random() * (rect.width - 30) + 10,
+          rect.top + Math.random() * (rect.height - 100) + 40,
+          floaters[Math.floor(Math.random() * floaters.length)]
+        );
+      }
+
+      animatePaw(leftPaw);
+      setTimeout(() => animatePaw(rightPaw), 120);
+      setTimeout(() => catStage.classList.toggle("excited", laserMode), 1200);
+    }
+
+    document.getElementById("treatBtn").addEventListener("click", handleTreat);
+    document.getElementById("summonBtn").addEventListener("click", handleSummon);
+    document.getElementById("laserBtn").addEventListener("click", toggleLaser);
+    document.getElementById("chaosBtn").addEventListener("click", handleChaos);
+
+    catZone.addEventListener("mousemove", (event) => {
+      setEyeTracking(event.clientX, event.clientY);
+      if (laserMode) {
+        setLaserFromPointer(event.clientX, event.clientY);
+      }
+    });
+
+    catZone.addEventListener("click", (event) => {
+      if (!laserMode) {
+        spawnFloater(event.clientX, event.clientY, "🐾");
+      } else {
+        setLaserFromPointer(event.clientX, event.clientY);
+        animatePaw(Math.random() > 0.5 ? leftPaw : rightPaw);
+        updateMood(mood + 2);
+      }
+    });
+
+    window.addEventListener("mouseleave", () => {
+      root.style.setProperty("--pupil-x", "0px");
+      root.style.setProperty("--pupil-y", "0px");
+    });
+
+    updateMood(mood);
+  </script>
+</body>
+</html>
