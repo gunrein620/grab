@@ -6,19 +6,19 @@
   <title>Grab Board Demo</title>
   <style>
     :root {
-      --ig-bg: #fafafa;
-      --ig-surface: #ffffff;
-      --ig-border: #dbdbdb;
-      --ig-border-soft: #efefef;
+      --ig-bg: #eef6b7;
+      --ig-surface: #f9ffe8;
+      --ig-border: #c9d892;
+      --ig-border-soft: #dde8b6;
       --ig-text: #262626;
-      --ig-muted: #8e8e8e;
-      --ig-blue: #0095f6;
-      --ig-red: #ed4956;
-      --ig-ring-1: #feda75;
-      --ig-ring-2: #fa7e1e;
-      --ig-ring-3: #d62976;
-      --ig-ring-4: #962fbf;
-      --ig-ring-5: #4f5bd5;
+      --ig-muted: #667253;
+      --ig-blue: #2f8f49;
+      --ig-red: #1f7a3b;
+      --ig-ring-1: #efff93;
+      --ig-ring-2: #d2ee60;
+      --ig-ring-3: #8fcb4d;
+      --ig-ring-4: #49a257;
+      --ig-ring-5: #206f43;
       --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.08);
       --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.07);
     }
@@ -65,8 +65,8 @@
       align-items: center;
       justify-content: center;
       background:
-        radial-gradient(circle at top left, rgba(79, 91, 213, 0.08), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(214, 41, 118, 0.08), transparent 28%),
+        radial-gradient(circle at top left, rgba(190, 228, 94, 0.22), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(71, 158, 88, 0.18), transparent 28%),
         var(--ig-bg);
     }
 
@@ -223,7 +223,7 @@
       border-radius: 24px;
       background:
         radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.35), transparent 18%),
-        linear-gradient(135deg, #405de6, #833ab4 30%, #c13584 58%, #e1306c 75%, #f77737 88%, #ffdc80);
+        linear-gradient(135deg, #efff93, #cfe85e 26%, #8fcb4d 54%, #49a257 76%, #206f43 100%);
       position: relative;
       overflow: hidden;
     }
@@ -310,7 +310,7 @@
       width: 100%;
       border: 1px solid var(--ig-border);
       border-radius: 12px;
-      background: #fafafa;
+      background: #f3f8d7;
       padding: 14px 15px;
       color: var(--ig-text);
       outline: none;
@@ -343,7 +343,7 @@
       margin-top: 18px;
       padding: 15px 16px;
       border-radius: 16px;
-      background: #f7f7f7;
+      background: #eef6c8;
       border: 1px solid var(--ig-border-soft);
       color: var(--ig-muted);
       font-size: 13px;
@@ -369,8 +369,8 @@
       align-items: center;
       justify-content: center;
       background:
-        radial-gradient(circle at top left, rgba(79, 91, 213, 0.05), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(214, 41, 118, 0.05), transparent 24%),
+        radial-gradient(circle at top left, rgba(190, 228, 94, 0.18), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(71, 158, 88, 0.14), transparent 24%),
         var(--ig-bg);
     }
 
@@ -599,7 +599,7 @@
     }
 
     .icon-button:hover {
-      background: #f5f5f5;
+      background: #edf5c9;
     }
 
     .icon-button.is-liked {
@@ -671,7 +671,7 @@
     }
 
     .tag {
-      color: #00376b;
+      color: #1d653a;
       margin-left: 6px;
     }
 
@@ -966,7 +966,7 @@
         caption: "주말 러닝 끝나고 강바람 맞는 시간. 이런 온도감은 피드에 남겨둬야 함.",
         tags: ["한강", "러닝", "주말"],
         photoTitle: "River Run",
-        palette: ["#405de6", "#833ab4", "#f77737"],
+        palette: ["#efff93", "#8fcb4d", "#206f43"],
         comments: [
           { user: "city.note", text: "톤이 완전 좋다.", time: "45분 전" },
           { user: "film.daily", text: "첫 장면부터 저장하고 싶어짐.", time: "29분 전" }
@@ -980,7 +980,7 @@
         caption: "오후 햇빛이 스튜디오 바닥에 떨어지는 순간만 기다렸다가 찍은 컷.",
         tags: ["성수", "스튜디오", "빛"],
         photoTitle: "Studio Noon",
-        palette: ["#ffdc80", "#f77737", "#d62976"],
+        palette: ["#efff8f", "#bddd52", "#3e9f56"],
         comments: [
           { user: "mono.graph", text: "그림자 라인이 예쁨.", time: "2시간 전" },
           { user: "brunch.walk", text: "공간감이 꽤 인스타 피드스럽네.", time: "1시간 전" }
@@ -994,7 +994,7 @@
         caption: "밤시장 특유의 네온이랑 종이컵 조합. 딱 그 시간대 무드 그대로.",
         tags: ["망원", "야시장", "네온"],
         photoTitle: "Night Market",
-        palette: ["#4f5bd5", "#962fbf", "#c13584"],
+        palette: ["#7bcf63", "#3da85a", "#185c37"],
         comments: [
           { user: "snack.map", text: "색감이 너무 맛있다.", time: "어제" },
           { user: "weekend.route", text: "이런 피드면 계속 넘겨보게 됨.", time: "어제" }
@@ -1008,7 +1008,7 @@
         caption: "책 몇 권 꺼내놓고 커피 식을 때까지 멍하니 있었던 오후.",
         tags: ["책방", "연남", "주말오후"],
         photoTitle: "Quiet Shelf",
-        palette: ["#833ab4", "#c13584", "#ffdc80"],
+        palette: ["#dff57a", "#8ec84b", "#497a34"],
         comments: [
           { user: "paper.room", text: "이 컷은 냄새까지 느껴짐.", time: "어제" }
         ]
@@ -1021,7 +1021,7 @@
         caption: "진한 에스프레소보다 창가 반사광이 더 강했던 아침.",
         tags: ["을지로", "커피", "창가"],
         photoTitle: "Coffee Break",
-        palette: ["#f77737", "#d62976", "#405de6"],
+        palette: ["#b5e15b", "#5aad50", "#1d7745"],
         comments: [
           { user: "cream.toast", text: "테이블 질감까지 살아있네.", time: "2일 전" },
           { user: "frame.loop", text: "이건 저장 각.", time: "2일 전" }
@@ -1035,7 +1035,7 @@
         caption: "정상까지는 힘들었는데 내려와서 사진 보니까 다시 갈 만하다.",
         tags: ["북한산", "트레일", "공기"],
         photoTitle: "Trail Air",
-        palette: ["#4f5bd5", "#405de6", "#ffdc80"],
+        palette: ["#97d95c", "#55b55f", "#1f6a43"],
         comments: [
           { user: "peak.light", text: "하늘 톤이 엄청 깨끗하다.", time: "3일 전" },
           { user: "move.slow", text: "스크롤이 아니라 슬라이드라 더 집중돼.", time: "3일 전" }
@@ -1049,7 +1049,7 @@
         caption: "간판 빛이 겹칠 때 생기는 색 번짐이 제일 좋다.",
         tags: ["홍대", "골목", "야간촬영"],
         photoTitle: "Neon Alley",
-        palette: ["#405de6", "#962fbf", "#ed4956"],
+        palette: ["#bdf76b", "#7fcf57", "#237a49"],
         comments: [
           { user: "late.route", text: "이런 밤 장면은 늘 정답.", time: "4일 전" }
         ]
@@ -1062,7 +1062,7 @@
         caption: "비 오는 날 창문에 맺힌 결만으로도 한 장이 완성된다.",
         tags: ["합정", "비", "실내촬영"],
         photoTitle: "Window Rain",
-        palette: ["#833ab4", "#405de6", "#ffdc80"],
+        palette: ["#eafc8d", "#95ce4d", "#2b8f4b"],
         comments: [
           { user: "soft.frame", text: "잔잔한데 계속 보게 된다.", time: "5일 전" },
           { user: "mood.board", text: "완전 오늘 날씨랑 맞음.", time: "5일 전" }
@@ -1076,7 +1076,7 @@
         caption: "조용한 책상 위에 빛이 딱 한 줄 들어왔을 뿐인데 피드 컷이 됨.",
         tags: ["책상", "작업실", "오후빛"],
         photoTitle: "Summer Desk",
-        palette: ["#ffdc80", "#f77737", "#405de6"],
+        palette: ["#d3ef66", "#68b253", "#245f3a"],
         comments: [
           { user: "paper.clip", text: "심플한데 분위기 좋다.", time: "6일 전" }
         ]
@@ -1089,10 +1089,10 @@
         caption: "해 지기 직전 옥상에서 보는 하늘은 실패할 수가 없다.",
         tags: ["이태원", "루프탑", "노을"],
         photoTitle: "Sunset Roof",
-        palette: ["#ffdc80", "#d62976", "#4f5bd5"],
+        palette: ["#efff96", "#9bce58", "#2d6d40"],
         comments: [
           { user: "golden.view", text: "마지막 컷으로 완벽하네.", time: "1주 전" },
-          { user: "city.sun", text: "색이 진짜 인스타 로고 같다.", time: "1주 전" }
+          { user: "city.sun", text: "테니스공 톤이라 컨셉이 잘 맞네.", time: "1주 전" }
         ]
       }
     ];
