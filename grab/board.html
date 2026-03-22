@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Grab Board Demo</title>
+  <style>
+    :root {
+      --ig-bg: #fafafa;
+      --ig-surface: #ffffff;
+      --ig-border: #dbdbdb;
+      --ig-border-soft: #efefef;
+      --ig-text: #262626;
+      --ig-muted: #8e8e8e;
+      --ig-blue: #0095f6;
+      --ig-red: #ed4956;
+      --ig-ring-1: #feda75;
+      --ig-ring-2: #fa7e1e;
+      --ig-ring-3: #d62976;
+      --ig-ring-4: #962fbf;
+      --ig-ring-5: #4f5bd5;
+      --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.08);
+      --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--ig-bg);
+      color: var(--ig-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top left, rgba(79, 91, 213, 0.08), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(214, 41, 118, 0.08), transparent 28%),
+        var(--ig-bg);
+    }
+
+    .login-layout {
+      width: min(100%, 1040px);
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(340px, 420px);
+      gap: 36px;
+      align-items: center;
+    }
+
+    .login-preview {
+      min-height: 720px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-phone {
+      width: min(370px, 100%);
+      aspect-ratio: 9 / 18.4;
+      border-radius: 46px;
+      background: #111111;
+      padding: 12px;
+      box-shadow: 0 50px 90px rgba(0, 0, 0, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-phone::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      width: 122px;
+      height: 26px;
+      transform: translateX(-50%);
+      background: #111111;
+      border-radius: 0 0 18px 18px;
+      z-index: 2;
+    }
+
+    .preview-screen {
+      border-radius: 34px;
+      height: 100%;
+      overflow: hidden;
+      background: var(--ig-surface);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-topbar {
+      padding: 18px 18px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--ig-border-soft);
+    }
+
+    .wordmark {
+      font-size: 30px;
+      line-height: 1;
+      font-family: "Segoe Script", "Snell Roundhand", cursive;
+      font-weight: 600;
+      letter-spacing: -0.8px;
+    }
+
+    .preview-icon-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .preview-stories {
+      display: flex;
+      gap: 14px;
+      padding: 14px 18px 18px;
+      border-bottom: 1px solid var(--ig-border-soft);
+      overflow: hidden;
+    }
+
+    .story-item {
+      width: 72px;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+
+    .story-ring {
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--ig-ring-1), var(--ig-ring-2), var(--ig-ring-3), var(--ig-ring-4), var(--ig-ring-5));
+    }
+
+    .story-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--ig-surface);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .story-name {
+      font-size: 11px;
+      color: var(--ig-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-post {
+      padding: 12px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .preview-post-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .preview-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-author-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .preview-author-copy strong {
+      font-size: 14px;
+    }
+
+    .preview-author-copy span {
+      font-size: 12px;
+      color: var(--ig-muted);
+    }
+
+    .preview-image {
+      aspect-ratio: 1 / 1;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.35), transparent 18%),
+        linear-gradient(135deg, #405de6, #833ab4 30%, #c13584 58%, #e1306c 75%, #f77737 88%, #ffdc80);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-image::before,
+    .preview-image::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .preview-image::before {
+      width: 210px;
+      height: 210px;
+      bottom: -36px;
+      right: -18px;
+    }
+
+    .preview-image::after {
+      width: 98px;
+      height: 98px;
+      top: 32px;
+      left: -24px;
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .preview-caption {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .preview-caption strong {
+      font-weight: 700;
+    }
+
+    .preview-caption small {
+      color: var(--ig-muted);
+      font-size: 12px;
+    }
+
+    .login-panel {
+      background: var(--ig-surface);
+      border: 1px solid var(--ig-border);
+      border-radius: 26px;
+      box-shadow: var(--shadow-card);
+      padding: 38px 34px 30px;
+    }
+
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .login-brand .wordmark {
+      font-size: 42px;
+    }
+
+    .login-brand p {
+      margin: 0;
+      color: var(--ig-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .text-field {
+      width: 100%;
+      border: 1px solid var(--ig-border);
+      border-radius: 12px;
+      background: #fafafa;
+      padding: 14px 15px;
+      color: var(--ig-text);
+      outline: none;
+      transition: border-color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .text-field:focus {
+      border-color: #a8a8a8;
+      background: var(--ig-surface);
+    }
+
+    .login-button {
+      margin-top: 4px;
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--ig-blue);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.18s ease, transform 0.18s ease;
+    }
+
+    .login-button:hover {
+      filter: brightness(0.95);
+      transform: translateY(-1px);
+    }
+
+    .login-note {
+      margin-top: 18px;
+      padding: 15px 16px;
+      border-radius: 16px;
+      background: #f7f7f7;
+      border: 1px solid var(--ig-border-soft);
+      color: var(--ig-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .login-note strong {
+      color: var(--ig-text);
+    }
+
+    .login-error {
+      min-height: 20px;
+      margin-top: 4px;
+      color: #d3002f;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .feed-shell {
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top left, rgba(79, 91, 213, 0.05), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(214, 41, 118, 0.05), transparent 24%),
+        var(--ig-bg);
+    }
+
+    .feed-stage {
+      width: min(100%, 1240px);
+      display: grid;
+      grid-template-columns: 92px minmax(0, 460px) 92px;
+      gap: 24px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-column {
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-button {
+      width: 64px;
+      height: 64px;
+      border: 1px solid var(--ig-border);
+      border-radius: 999px;
+      background: var(--ig-surface);
+      box-shadow: var(--shadow-soft);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .nav-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 34px rgba(0, 0, 0, 0.11);
+    }
+
+    .nav-button[disabled] {
+      opacity: 0.35;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .frame-wrap {
+      position: relative;
+    }
+
+    .feed-frame {
+      height: min(92vh, 920px);
+      min-height: 720px;
+      border-radius: 34px;
+      border: 1px solid var(--ig-border);
+      background: var(--ig-surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .frame-header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--ig-border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .frame-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .frame-brand .wordmark {
+      font-size: 31px;
+    }
+
+    .frame-brand span {
+      color: var(--ig-muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .frame-status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 110px;
+    }
+
+    .status-user {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-index {
+      font-size: 12px;
+      color: var(--ig-muted);
+    }
+
+    .progress-dots {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      min-height: 8px;
+    }
+
+    .progress-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #c9c9c9;
+      transition: width 0.18s ease, background-color 0.18s ease;
+    }
+
+    .progress-dot.active {
+      width: 18px;
+      background: var(--ig-blue);
+    }
+
+    .carousel-track {
+      flex: 1;
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      background: var(--ig-surface);
+    }
+
+    .carousel-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .post-page {
+      min-width: 100%;
+      height: 100%;
+      scroll-snap-align: start;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: var(--ig-surface);
+    }
+
+    .post-card {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .post-head {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      padding: 2px;
+      flex: 0 0 auto;
+      background: linear-gradient(135deg, var(--ring-a), var(--ring-b), var(--ring-c));
+    }
+
+    .avatar-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--ig-surface);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .profile-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .profile-copy strong {
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .profile-copy span {
+      font-size: 12px;
+      color: var(--ig-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-button {
+      border: 0;
+      background: transparent;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: var(--ig-text);
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .icon-button:hover {
+      background: #f5f5f5;
+    }
+
+    .icon-button.is-liked {
+      color: var(--ig-red);
+    }
+
+    .icon-button svg,
+    .nav-button svg,
+    .preview-icon-row svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .post-image-wrap {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: #111111;
+    }
+
+    .post-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .image-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.62);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .post-actions {
+      padding: 12px 16px 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .likes-line {
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .caption-line,
+    .comment-item {
+      padding: 0 16px;
+      font-size: 14px;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .caption-line {
+      margin-top: 8px;
+    }
+
+    .inline-name {
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .tag {
+      color: #00376b;
+      margin-left: 6px;
+    }
+
+    .comment-summary {
+      padding: 10px 16px 6px;
+      font-size: 13px;
+      color: var(--ig-muted);
+    }
+
+    .comment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 12px;
+    }
+
+    .comment-item small {
+      color: var(--ig-muted);
+      margin-left: 8px;
+      font-size: 11px;
+    }
+
+    .comment-form {
+      margin-top: auto;
+      padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--ig-border-soft);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--ig-surface);
+      position: sticky;
+      bottom: 0;
+    }
+
+    .comment-input {
+      flex: 1;
+      border: 0;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--ig-text);
+    }
+
+    .comment-submit {
+      border: 0;
+      background: transparent;
+      color: var(--ig-blue);
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .comment-submit:disabled {
+      color: #b2dffc;
+      cursor: default;
+    }
+
+    .post-meta {
+      padding: 0 16px 12px;
+      font-size: 11px;
+      color: var(--ig-muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .login-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .login-preview {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .feed-stage {
+        grid-template-columns: minmax(0, 460px);
+      }
+
+      .nav-column {
+        display: none;
+      }
+
+      .mobile-nav {
+        position: absolute;
+        inset: 50% 10px auto;
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+
+      .mobile-nav .nav-button {
+        width: 46px;
+        height: 46px;
+        pointer-events: auto;
+        background: rgba(255, 255, 255, 0.94);
+      }
+    }
+
+    @media (max-width: 680px) {
+      .app-shell,
+      .feed-shell {
+        padding: 0;
+      }
+
+      .login-preview {
+        display: none;
+      }
+
+      .login-panel {
+        min-height: 100vh;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .feed-frame {
+        height: 100svh;
+        min-height: 100svh;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        box-shadow: none;
+      }
+
+      .frame-header {
+        padding-top: calc(16px + env(safe-area-inset-top));
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="app-shell" id="loginView">
+    <div class="login-layout">
+      <div class="login-preview" aria-hidden="true">
+        <div class="preview-phone">
+          <div class="preview-screen">
+            <div class="preview-topbar">
+              <div class="wordmark">Instagram</div>
+              <div class="preview-icon-row">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 7a1 1 0 0 0 0-2h-1V4a5 5 0 1 0-10 0v1H6a1 1 0 0 0 0 2h1v11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7h1Zm-9-3a3 3 0 1 1 6 0v1H9V4Zm6 14H9V7h6v11Z"></path></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 3h-11A3.5 3.5 0 0 0 3 6.5v11A3.5 3.5 0 0 0 6.5 21h11a3.5 3.5 0 0 0 3.5-3.5v-11A3.5 3.5 0 0 0 17.5 3Zm1.5 14.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 17.5v-11A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v11Z"></path><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"></path><circle cx="17.5" cy="6.5" r="1.1"></circle></svg>
+              </div>
+            </div>
+            <div class="preview-stories">
+              <div class="story-item">
+                <div class="story-ring"><div class="story-core">DR</div></div>
+                <div class="story-name">dragkim88</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring"><div class="story-core">SE</div></div>
+                <div class="story-name">seoul</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring"><div class="story-core">NF</div></div>
+                <div class="story-name">night</div>
+              </div>
+              <div class="story-item">
+                <div class="story-ring"><div class="story-core">CF</div></div>
+                <div class="story-name">coffee</div>
+              </div>
+            </div>
+            <div class="preview-post">
+              <div class="preview-post-head">
+                <div class="preview-author">
+                  <div class="story-ring" style="width:44px;height:44px;margin:0;padding:2px;">
+                    <div class="story-core" style="font-size:11px;">GF</div>
+                  </div>
+                  <div class="preview-author-copy">
+                    <strong>grab.frames</strong>
+                    <span>Seoul, Korea</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg>
+              </div>
+              <div class="preview-image"></div>
+              <div class="preview-actions">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.792 3c-1.7 0-3.194.815-4.292 2.09C11.402 3.815 9.908 3 8.208 3 4.782 3 2 5.783 2 9.208c0 3.566 2.873 6.155 7.22 10.07l2.614 2.361a1 1 0 0 0 1.332 0l2.614-2.36C19.127 15.363 22 12.773 22 9.208 22 5.783 19.218 3 15.792 3Z"></path></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3H4a1 1 0 0 0-1 1v12.5A3.5 3.5 0 0 0 6.5 20H18l3.707 2.966A.8.8 0 0 0 23 22.341V6a3 3 0 0 0-3-3ZM5 16.5V5h15a1 1 0 0 1 1 1v14.262L18.8 18.5H6.5A1.5 1.5 0 0 1 5 16.5Z"></path></svg>
+              </div>
+              <div class="preview-caption">
+                <div><strong>grab.frames</strong> 좌우로 넘기는 게시판 데모를 인스타그램 톤으로 구성했습니다.</div>
+                <small>좋아요 4,281개</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-panel">
+        <div class="login-brand">
+          <div class="wordmark">Instagram</div>
+          <p>로그인 후에만 게시글을 볼 수 있게 막아둔 데모입니다. 서버 없이 동작하도록 프론트엔드 더미 데이터만 넣었습니다.</p>
+        </div>
+
+        <form class="login-form" id="loginForm" novalidate>
+          <input class="text-field" id="usernameInput" type="text" autocomplete="username" placeholder="전화번호, 사용자 이름 또는 이메일">
+          <input class="text-field" id="passwordInput" type="password" autocomplete="current-password" placeholder="비밀번호">
+          <button class="login-button" type="submit">로그인</button>
+          <div class="login-error" id="loginError" aria-live="polite"></div>
+        </form>
+
+        <div class="login-note">
+          <strong>데모 로그인</strong><br>
+          사용자 이름은 <strong>dragkim88</strong> 로 입력하면 되고, 비밀번호는 아무 값이나 넣으면 열립니다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feed-shell hidden" id="feedView">
+    <div class="feed-stage">
+      <div class="nav-column">
+        <button class="nav-button" id="prevButton" type="button" aria-label="이전 게시글">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 19.41 8 12l7.41-7.41L14 3.17 5.17 12 14 20.83z"></path></svg>
+        </button>
+      </div>
+
+      <div class="frame-wrap">
+        <div class="feed-frame">
+          <div class="frame-header">
+            <div class="frame-brand">
+              <div class="wordmark">Instagram</div>
+              <span>모바일에서는 좌우 스와이프, 데스크톱에서는 버튼으로 이동</span>
+            </div>
+            <div class="frame-status">
+              <div class="status-user" id="statusUser">@dragkim88</div>
+              <div class="status-index" id="statusIndex">1 / 10</div>
+              <div class="progress-dots" id="progressDots" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="carousel-track" id="track"></div>
+        </div>
+
+        <div class="mobile-nav">
+          <button class="nav-button" id="prevButtonMobile" type="button" aria-label="이전 게시글">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 19.41 8 12l7.41-7.41L14 3.17 5.17 12 14 20.83z"></path></svg>
+          </button>
+          <button class="nav-button" id="nextButtonMobile" type="button" aria-label="다음 게시글">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8.59 19.41 1.41 1.42L18.83 12 10 3.17 8.59 4.59 16 12z"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="nav-column">
+        <button class="nav-button" id="nextButton" type="button" aria-label="다음 게시글">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8.59 19.41 1.41 1.42L18.83 12 10 3.17 8.59 4.59 16 12z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const allowedUsername = "dragkim88";
+    const sessionKey = "grab-board-demo-user";
+
+    const loginView = document.getElementById("loginView");
+    const feedView = document.getElementById("feedView");
+    const loginForm = document.getElementById("loginForm");
+    const usernameInput = document.getElementById("usernameInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const loginError = document.getElementById("loginError");
+    const statusUser = document.getElementById("statusUser");
+    const statusIndex = document.getElementById("statusIndex");
+    const progressDots = document.getElementById("progressDots");
+    const track = document.getElementById("track");
+
+    const navButtons = [
+      document.getElementById("prevButton"),
+      document.getElementById("nextButton"),
+      document.getElementById("prevButtonMobile"),
+      document.getElementById("nextButtonMobile")
+    ];
+
+    const postSeeds = [
+      {
+        username: "grab.frames",
+        location: "Han River, Seoul",
+        time: "2시간 전",
+        likes: 4281,
+        caption: "주말 러닝 끝나고 강바람 맞는 시간. 이런 온도감은 피드에 남겨둬야 함.",
+        tags: ["한강", "러닝", "주말"],
+        photoTitle: "River Run",
+        palette: ["#405de6", "#833ab4", "#f77737"],
+        comments: [
+          { user: "city.note", text: "톤이 완전 좋다.", time: "45분 전" },
+          { user: "film.daily", text: "첫 장면부터 저장하고 싶어짐.", time: "29분 전" }
+        ]
+      },
+      {
+        username: "seoul.afterglow",
+        location: "Seongsu Studio",
+        time: "5시간 전",
+        likes: 2910,
+        caption: "오후 햇빛이 스튜디오 바닥에 떨어지는 순간만 기다렸다가 찍은 컷.",
+        tags: ["성수", "스튜디오", "빛"],
+        photoTitle: "Studio Noon",
+        palette: ["#ffdc80", "#f77737", "#d62976"],
+        comments: [
+          { user: "mono.graph", text: "그림자 라인이 예쁨.", time: "2시간 전" },
+          { user: "brunch.walk", text: "공간감이 꽤 인스타 피드스럽네.", time: "1시간 전" }
+        ]
+      },
+      {
+        username: "night.bite",
+        location: "Mangwon Market",
+        time: "어제",
+        likes: 5123,
+        caption: "밤시장 특유의 네온이랑 종이컵 조합. 딱 그 시간대 무드 그대로.",
+        tags: ["망원", "야시장", "네온"],
+        photoTitle: "Night Market",
+        palette: ["#4f5bd5", "#962fbf", "#c13584"],
+        comments: [
+          { user: "snack.map", text: "색감이 너무 맛있다.", time: "어제" },
+          { user: "weekend.route", text: "이런 피드면 계속 넘겨보게 됨.", time: "어제" }
+        ]
+      },
+      {
+        username: "shelf.weekend",
+        location: "Yeonnam Book Spot",
+        time: "어제",
+        likes: 1862,
+        caption: "책 몇 권 꺼내놓고 커피 식을 때까지 멍하니 있었던 오후.",
+        tags: ["책방", "연남", "주말오후"],
+        photoTitle: "Quiet Shelf",
+        palette: ["#833ab4", "#c13584", "#ffdc80"],
+        comments: [
+          { user: "paper.room", text: "이 컷은 냄새까지 느껴짐.", time: "어제" }
+        ]
+      },
+      {
+        username: "slow.coffee",
+        location: "Euljiro Cafe",
+        time: "2일 전",
+        likes: 3378,
+        caption: "진한 에스프레소보다 창가 반사광이 더 강했던 아침.",
+        tags: ["을지로", "커피", "창가"],
+        photoTitle: "Coffee Break",
+        palette: ["#f77737", "#d62976", "#405de6"],
+        comments: [
+          { user: "cream.toast", text: "테이블 질감까지 살아있네.", time: "2일 전" },
+          { user: "frame.loop", text: "이건 저장 각.", time: "2일 전" }
+        ]
+      },
+      {
+        username: "trail.memo",
+        location: "Bukhansan Trail",
+        time: "3일 전",
+        likes: 6144,
+        caption: "정상까지는 힘들었는데 내려와서 사진 보니까 다시 갈 만하다.",
+        tags: ["북한산", "트레일", "공기"],
+        photoTitle: "Trail Air",
+        palette: ["#4f5bd5", "#405de6", "#ffdc80"],
+        comments: [
+          { user: "peak.light", text: "하늘 톤이 엄청 깨끗하다.", time: "3일 전" },
+          { user: "move.slow", text: "스크롤이 아니라 슬라이드라 더 집중돼.", time: "3일 전" }
+        ]
+      },
+      {
+        username: "alley.signals",
+        location: "Hongdae Backstreet",
+        time: "4일 전",
+        likes: 2572,
+        caption: "간판 빛이 겹칠 때 생기는 색 번짐이 제일 좋다.",
+        tags: ["홍대", "골목", "야간촬영"],
+        photoTitle: "Neon Alley",
+        palette: ["#405de6", "#962fbf", "#ed4956"],
+        comments: [
+          { user: "late.route", text: "이런 밤 장면은 늘 정답.", time: "4일 전" }
+        ]
+      },
+      {
+        username: "window.rain",
+        location: "Hapjeong Studio",
+        time: "5일 전",
+        likes: 3421,
+        caption: "비 오는 날 창문에 맺힌 결만으로도 한 장이 완성된다.",
+        tags: ["합정", "비", "실내촬영"],
+        photoTitle: "Window Rain",
+        palette: ["#833ab4", "#405de6", "#ffdc80"],
+        comments: [
+          { user: "soft.frame", text: "잔잔한데 계속 보게 된다.", time: "5일 전" },
+          { user: "mood.board", text: "완전 오늘 날씨랑 맞음.", time: "5일 전" }
+        ]
+      },
+      {
+        username: "desk.summer",
+        location: "Mapo Office",
+        time: "6일 전",
+        likes: 1980,
+        caption: "조용한 책상 위에 빛이 딱 한 줄 들어왔을 뿐인데 피드 컷이 됨.",
+        tags: ["책상", "작업실", "오후빛"],
+        photoTitle: "Summer Desk",
+        palette: ["#ffdc80", "#f77737", "#405de6"],
+        comments: [
+          { user: "paper.clip", text: "심플한데 분위기 좋다.", time: "6일 전" }
+        ]
+      },
+      {
+        username: "roof.hour",
+        location: "Itaewon Rooftop",
+        time: "1주 전",
+        likes: 7204,
+        caption: "해 지기 직전 옥상에서 보는 하늘은 실패할 수가 없다.",
+        tags: ["이태원", "루프탑", "노을"],
+        photoTitle: "Sunset Roof",
+        palette: ["#ffdc80", "#d62976", "#4f5bd5"],
+        comments: [
+          { user: "golden.view", text: "마지막 컷으로 완벽하네.", time: "1주 전" },
+          { user: "city.sun", text: "색이 진짜 인스타 로고 같다.", time: "1주 전" }
+        ]
+      }
+    ];
+
+    const posts = postSeeds.map((seed, index) => ({
+      ...seed,
+      liked: false,
+      image: createPhoto(seed, index)
+    }));
+
+    const icons = {
+      heartOutline: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.792 3c-1.7 0-3.194.815-4.292 2.09C11.402 3.815 9.908 3 8.208 3 4.782 3 2 5.783 2 9.208c0 3.566 2.873 6.155 7.22 10.07l2.614 2.361a1 1 0 0 0 1.332 0l2.614-2.36C19.127 15.363 22 12.773 22 9.208 22 5.783 19.218 3 15.792 3Zm0 2C19.116 5 20 7.046 20 9.208c0 2.72-2.353 4.898-6.561 8.69L12.5 18.76l-.939-.862C7.353 14.106 5 11.928 5 9.208 5 7.046 5.884 5 8.208 5c1.312 0 2.53.717 3.182 1.872a1 1 0 0 0 1.737 0C14.262 5.717 15.48 5 16.792 5Z"></path></svg>',
+      heartFilled: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.792 3c-1.7 0-3.194.815-4.292 2.09C11.402 3.815 9.908 3 8.208 3 4.782 3 2 5.783 2 9.208c0 3.566 2.873 6.155 7.22 10.07l2.614 2.361a1 1 0 0 0 1.332 0l2.614-2.36C19.127 15.363 22 12.773 22 9.208 22 5.783 19.218 3 15.792 3Z"></path></svg>',
+      comment: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3H4a1 1 0 0 0-1 1v12.5A3.5 3.5 0 0 0 6.5 20H18l3.707 2.966A.8.8 0 0 0 23 22.341V6a3 3 0 0 0-3-3ZM5 16.5V5h15a1 1 0 0 1 1 1v14.262L18.8 18.5H6.5A1.5 1.5 0 0 1 5 16.5Z"></path></svg>',
+      more: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg>'
+    };
+
+    let currentIndex = 0;
+    let currentUser = "";
+    let scrollFrame = 0;
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("ko-KR").format(value);
+    }
+
+    function getInitials(name) {
+      const cleaned = String(name).replace(/[^0-9A-Za-z가-힣]/g, "");
+      return cleaned.slice(0, 2).toUpperCase() || "IG";
+    }
+
+    function avatarMarkup(name, palette) {
+      return `
+        <div class="avatar" style="--ring-a:${palette[0]};--ring-b:${palette[1]};--ring-c:${palette[2]};">
+          <div class="avatar-core">${escapeHtml(getInitials(name))}</div>
+        </div>
+      `;
+    }
+
+    function splitTitle(title) {
+      const words = title.split(" ");
+      if (words.length === 1) {
+        return [title, ""];
+      }
+      return [words[0], words.slice(1).join(" ")];
+    }
+
+    function createPhoto(seed, index) {
+      const [titleA, titleB] = splitTitle(seed.photoTitle);
+      const waveShift = 80 + index * 18;
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" role="img" aria-label="${escapeHtml(seed.photoTitle)}">
+          <defs>
+            <linearGradient id="bg${index}" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="${seed.palette[0]}"/>
+              <stop offset="48%" stop-color="${seed.palette[1]}"/>
+              <stop offset="100%" stop-color="${seed.palette[2]}"/>
+            </linearGradient>
+            <radialGradient id="glow${index}" cx="18%" cy="18%" r="34%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.50)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+          </defs>
+          <rect width="1080" height="1080" fill="url(#bg${index})"/>
+          <circle cx="220" cy="200" r="250" fill="url(#glow${index})"/>
+          <circle cx="${790 - index * 12}" cy="${188 + index * 8}" r="${84 + index * 3}" fill="rgba(255,255,255,0.16)"/>
+          <circle cx="${880 - index * 6}" cy="${316 + index * 5}" r="${46 + index * 2}" fill="rgba(255,255,255,0.12)"/>
+          <rect x="122" y="126" width="836" height="828" rx="58" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.28)" stroke-width="4"/>
+          <path d="M132 ${690 + waveShift} C 260 ${618 + waveShift}, 392 ${742 + waveShift}, 520 ${690 + waveShift} S 794 ${638 + waveShift}, 950 ${760 + waveShift} L 950 958 L 132 958 Z" fill="rgba(255,255,255,0.16)"/>
+          <path d="M132 ${600 + waveShift} C 292 ${502 + waveShift}, 404 ${654 + waveShift}, 562 ${566 + waveShift} S 832 ${518 + waveShift}, 950 ${612 + waveShift} L 950 958 L 132 958 Z" fill="rgba(255,255,255,0.10)"/>
+          <text x="156" y="210" fill="rgba(255,255,255,0.92)" font-size="34" font-family="Arial, Helvetica, sans-serif" letter-spacing="6">GRAB BOARD</text>
+          <text x="156" y="620" fill="#ffffff" font-size="104" font-weight="700" font-family="Arial, Helvetica, sans-serif">${escapeHtml(titleA)}</text>
+          <text x="156" y="720" fill="#ffffff" font-size="104" font-weight="700" font-family="Arial, Helvetica, sans-serif">${escapeHtml(titleB)}</text>
+          <text x="160" y="794" fill="rgba(255,255,255,0.92)" font-size="40" font-family="Arial, Helvetica, sans-serif">${escapeHtml(seed.location)}</text>
+          <text x="160" y="852" fill="rgba(255,255,255,0.82)" font-size="28" font-family="Arial, Helvetica, sans-serif">${escapeHtml(seed.username)}</text>
+        </svg>
+      `;
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    function commentMarkup(comment) {
+      return `
+        <div class="comment-item">
+          <span class="inline-name">${escapeHtml(comment.user)}</span>${escapeHtml(comment.text)}
+          <small>${escapeHtml(comment.time)}</small>
+        </div>
+      `;
+    }
+
+    function renderPosts() {
+      track.innerHTML = posts.map((post, index) => `
+        <article class="post-page" data-index="${index}">
+          <div class="post-card">
+            <header class="post-head">
+              <div class="profile-row">
+                ${avatarMarkup(post.username, post.palette)}
+                <div class="profile-copy">
+                  <strong>${escapeHtml(post.username)}</strong>
+                  <span>${escapeHtml(post.location)}</span>
+                </div>
+              </div>
+              <button class="icon-button" type="button" aria-label="게시글 더보기">
+                ${icons.more}
+              </button>
+            </header>
+
+            <div class="post-image-wrap">
+              <img class="post-image" src="${post.image}" alt="${escapeHtml(post.photoTitle)}" draggable="false">
+              <div class="image-badge">${index + 1} / ${posts.length}</div>
+            </div>
+
+            <div class="post-actions">
+              <button class="icon-button ${post.liked ? "is-liked" : ""}" type="button" data-action="like" data-index="${index}" aria-label="좋아요">
+                ${post.liked ? icons.heartFilled : icons.heartOutline}
+              </button>
+              <button class="icon-button" type="button" data-action="focus-comment" data-index="${index}" aria-label="댓글 달기">
+                ${icons.comment}
+              </button>
+            </div>
+
+            <div class="likes-line">${formatNumber(post.likes + (post.liked ? 1 : 0))}명이 좋아합니다</div>
+            <div class="caption-line">
+              <span class="inline-name">${escapeHtml(post.username)}</span>${escapeHtml(post.caption)}
+              ${post.tags.map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`).join("")}
+            </div>
+            <div class="comment-summary">댓글 ${formatNumber(post.comments.length)}개</div>
+            <div class="comment-list">
+              ${post.comments.slice(-3).map(commentMarkup).join("")}
+            </div>
+            <div class="post-meta">${escapeHtml(post.time)}</div>
+
+            <form class="comment-form" data-index="${index}">
+              <input
+                class="comment-input"
+                type="text"
+                name="comment"
+                maxlength="120"
+                autocomplete="off"
+                placeholder="댓글 달기..."
+                aria-label="댓글 입력"
+              >
+              <button class="comment-submit" type="submit" disabled>게시</button>
+            </form>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderDots() {
+      progressDots.innerHTML = posts.map((_, index) =>
+        `<span class="progress-dot ${index === currentIndex ? "active" : ""}"></span>`
+      ).join("");
+    }
+
+    function updateNavigation() {
+      const prevDisabled = currentIndex <= 0;
+      const nextDisabled = currentIndex >= posts.length - 1;
+      document.getElementById("prevButton").disabled = prevDisabled;
+      document.getElementById("prevButtonMobile").disabled = prevDisabled;
+      document.getElementById("nextButton").disabled = nextDisabled;
+      document.getElementById("nextButtonMobile").disabled = nextDisabled;
+      statusIndex.textContent = `${currentIndex + 1} / ${posts.length}`;
+      renderDots();
+    }
+
+    function scrollToIndex(index, smooth = true) {
+      currentIndex = Math.max(0, Math.min(posts.length - 1, index));
+      track.scrollTo({
+        left: currentIndex * track.clientWidth,
+        behavior: smooth ? "smooth" : "auto"
+      });
+      updateNavigation();
+    }
+
+    function syncIndexWithScroll() {
+      if (scrollFrame) {
+        cancelAnimationFrame(scrollFrame);
+      }
+      scrollFrame = requestAnimationFrame(() => {
+        const width = track.clientWidth || 1;
+        currentIndex = Math.round(track.scrollLeft / width);
+        updateNavigation();
+      });
+    }
+
+    function openFeed(user) {
+      currentUser = user;
+      statusUser.textContent = `@${user}`;
+      loginView.classList.add("hidden");
+      feedView.classList.remove("hidden");
+      renderPosts();
+      scrollToIndex(0, false);
+      sessionStorage.setItem(sessionKey, user);
+    }
+
+    loginForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (username !== allowedUsername) {
+        loginError.textContent = "이 데모는 dragkim88 계정으로만 열리게 되어 있습니다.";
+        return;
+      }
+
+      if (!password) {
+        loginError.textContent = "비밀번호를 입력해야 피드를 열 수 있습니다.";
+        return;
+      }
+
+      loginError.textContent = "";
+      openFeed(username);
+    });
+
+    track.addEventListener("click", (event) => {
+      const actionButton = event.target.closest("[data-action]");
+      if (!actionButton) {
+        return;
+      }
+
+      const index = Number(actionButton.dataset.index);
+      const action = actionButton.dataset.action;
+
+      if (action === "like") {
+        posts[index].liked = !posts[index].liked;
+        renderPosts();
+        scrollToIndex(currentIndex, false);
+        return;
+      }
+
+      if (action === "focus-comment") {
+        const input = track.querySelector(`.comment-form[data-index="${index}"] .comment-input`);
+        if (input) {
+          input.focus();
+        }
+      }
+    });
+
+    track.addEventListener("input", (event) => {
+      const input = event.target.closest(".comment-input");
+      if (!input) {
+        return;
+      }
+      const form = input.closest(".comment-form");
+      const button = form.querySelector(".comment-submit");
+      button.disabled = !input.value.trim();
+    });
+
+    track.addEventListener("submit", (event) => {
+      const form = event.target.closest(".comment-form");
+      if (!form) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const index = Number(form.dataset.index);
+      const input = form.querySelector(".comment-input");
+      const text = input.value.trim();
+
+      if (!text) {
+        return;
+      }
+
+      posts[index].comments.push({
+        user: currentUser || allowedUsername,
+        text,
+        time: "방금 전"
+      });
+
+      input.value = "";
+      renderPosts();
+      scrollToIndex(index, false);
+    });
+
+    navButtons.forEach((button) => {
+      const isPrev = button.id.toLowerCase().includes("prev");
+      button.addEventListener("click", () => {
+        scrollToIndex(currentIndex + (isPrev ? -1 : 1));
+      });
+    });
+
+    track.addEventListener("scroll", syncIndexWithScroll, { passive: true });
+
+    window.addEventListener("resize", () => {
+      scrollToIndex(currentIndex, false);
+    });
+
+    renderPosts();
+    updateNavigation();
+
+    const rememberedUser = sessionStorage.getItem(sessionKey);
+    if (rememberedUser === allowedUsername) {
+      openFeed(rememberedUser);
+    }
+  </script>
+</body>
+</html>
