@@ -224,7 +224,6 @@
     const COLS = 10;
     const ROWS = 20;
     const BLOCK = 42;
-    const NAME = "김정환";
     const COLORS = {
       I: "#62d7ff",
       O: "#ffd166",
@@ -353,8 +352,7 @@
             return;
           }
           board[boardY][piece.x + x] = {
-            color: piece.color,
-            text: NAME
+            color: piece.color
           };
         });
       });
@@ -479,11 +477,6 @@
       ctx.strokeStyle = "rgba(255,255,255,0.12)";
       ctx.strokeRect(px + 1.5, py + 1.5, BLOCK - 3, BLOCK - 3);
 
-      ctx.fillStyle = "#07111f";
-      ctx.font = "700 9px Pretendard, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(cell.text, px + BLOCK / 2, py + BLOCK / 2 + 1, BLOCK - 6);
     }
 
     function drawBoard() {
@@ -508,7 +501,7 @@
           }
           const drawY = piece.y + y;
           if (drawY >= 0) {
-            drawCell(piece.x + x, drawY, { color: piece.color, text: NAME });
+            drawCell(piece.x + x, drawY, { color: piece.color });
           }
         });
       });
