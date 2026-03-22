@@ -1,0 +1,588 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>음식 월드컵</title>
+  <style>
+    :root {
+      --theme: #03462E;
+      --panel: #03462E;
+      --panel-strong: #03462E;
+      --text: #ffffff;
+      --subtext: #ffffff;
+      --accent: #03462E;
+      --accent-strong: #ffffff;
+      --line: #03462E;
+      --shadow: 0 24px 70px rgba(3, 70, 46, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      color: var(--text);
+      background: var(--theme);
+      overflow: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 34vw;
+      height: 34vw;
+      border-radius: 50%;
+      filter: blur(10px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      top: -10vw;
+      left: -8vw;
+      background: #03462E;
+    }
+
+    body::after {
+      right: -12vw;
+      bottom: -12vw;
+      background: #03462E;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 24px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .headline {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .headline .label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--subtext);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.05;
+    }
+
+    .status {
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #03462E;
+      border: 1px solid #03462E;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent-strong);
+      white-space: nowrap;
+    }
+
+    .arena {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: stretch;
+      gap: 20px;
+      min-height: 0;
+    }
+
+    .card {
+      position: relative;
+      border: 0;
+      padding: 0;
+      background: var(--panel-strong);
+      border-radius: 32px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 28px 80px rgba(3, 70, 46, 0.4);
+      filter: saturate(1.04);
+    }
+
+    .card:active {
+      transform: translateY(-1px) scale(0.995);
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #46a477;
+    }
+
+    .card-info {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 24px 24px 20px;
+      background: rgba(3, 70, 46, 0.72);
+      color: #fffaf4;
+    }
+
+    .card-info strong {
+      display: block;
+      font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+      margin-bottom: 8px;
+    }
+
+    .card-info span {
+      font-size: 0.98rem;
+      opacity: 0.9;
+    }
+
+    .vs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 4rem);
+      color: #ffffff;
+      letter-spacing: 0.08em;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(3, 70, 46, 0.84);
+      backdrop-filter: blur(8px);
+      z-index: 20;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      padding: 32px;
+      border-radius: 28px;
+      background: var(--panel-strong);
+      border: 1px solid #03462E;
+      box-shadow: 0 30px 100px rgba(3, 70, 46, 0.4);
+    }
+
+    .modal h2 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+    }
+
+    .modal p {
+      margin: 0 0 24px;
+      color: var(--subtext);
+      line-height: 1.6;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--subtext);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #03462E;
+      background: #ffffff;
+      color: #111111;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #03462E;
+      box-shadow: 0 0 0 4px rgba(3, 70, 46, 0.16);
+    }
+
+    .start-btn,
+    .restart-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fffdf9;
+      background: #03462E;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .start-btn:hover,
+    .restart-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+    }
+
+    .winner-screen {
+      flex: 1;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .winner-screen.show {
+      display: flex;
+    }
+
+    .winner-card {
+      width: min(720px, 100%);
+      padding: 24px;
+      border-radius: 36px;
+      background: var(--panel-strong);
+      box-shadow: var(--shadow);
+      text-align: center;
+      border: 1px solid var(--line);
+    }
+
+    .winner-card img {
+      width: 100%;
+      max-height: 440px;
+      object-fit: cover;
+      border-radius: 26px;
+      display: block;
+      margin-bottom: 22px;
+    }
+
+    .winner-card .crown {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--accent-strong);
+      margin-bottom: 10px;
+    }
+
+    .winner-card h3 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+    }
+
+    .winner-card p {
+      margin: 0 0 20px;
+      color: var(--subtext);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        padding: 16px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .arena {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(220px, 1fr) auto minmax(220px, 1fr);
+      }
+
+      .vs {
+        min-height: 60px;
+      }
+
+      .card {
+        min-height: 34vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay" id="startOverlay">
+    <div class="modal">
+      <h2>음식 월드컵</h2>
+      <p>월드컵 이름과 진행할 라운드를 정하면 바로 대결이 시작됩니다.</p>
+      <div class="field">
+        <label for="cupTitle">월드컵 이름</label>
+        <input id="cupTitle" type="text" value="음식 월드컵" placeholder="예: 한식 월드컵" maxlength="30" />
+      </div>
+      <div class="field">
+        <label for="roundSelect">몇강으로 진행할까요?</label>
+        <select id="roundSelect">
+          <option value="4">4강</option>
+          <option value="8" selected>8강</option>
+          <option value="16">16강</option>
+          <option value="32">32강</option>
+        </select>
+      </div>
+      <button class="start-btn" id="startBtn">월드컵 시작하기</button>
+    </div>
+  </div>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="headline">
+        <div class="label">Food World Cup</div>
+        <h1 id="titleText">음식 월드컵</h1>
+      </div>
+      <div class="status" id="roundText">대기 중</div>
+    </header>
+
+    <section class="arena" id="arena">
+      <button class="card" id="leftCard" type="button">
+        <img id="leftImage" alt="왼쪽 음식 이미지" />
+        <div class="card-info">
+          <strong id="leftName"></strong>
+          <span>클릭하면 다음 라운드로 진출합니다</span>
+        </div>
+      </button>
+
+      <div class="vs">VS</div>
+
+      <button class="card" id="rightCard" type="button">
+        <img id="rightImage" alt="오른쪽 음식 이미지" />
+        <div class="card-info">
+          <strong id="rightName"></strong>
+          <span>클릭하면 다음 라운드로 진출합니다</span>
+        </div>
+      </button>
+    </section>
+
+    <section class="winner-screen" id="winnerScreen">
+      <div class="winner-card">
+        <img id="winnerImage" alt="우승 음식 이미지" />
+        <div class="crown">FINAL WINNER</div>
+        <h3 id="winnerName"></h3>
+        <p id="winnerDesc"></p>
+        <button class="restart-btn" id="restartBtn">다시 시작하기</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const foods = [
+      { name: "김치찌개", emoji: "🍲", colors: ["#d74b2a", "#f2a65a"] },
+      { name: "비빔밥", emoji: "🥣", colors: ["#c86b3c", "#f0c96a"] },
+      { name: "삼겹살", emoji: "🥓", colors: ["#9f3c2d", "#e4a26d"] },
+      { name: "떡볶이", emoji: "🌶️", colors: ["#d83a34", "#f49d37"] },
+      { name: "냉면", emoji: "🍜", colors: ["#6388a6", "#d7ecf4"] },
+      { name: "불고기", emoji: "🥩", colors: ["#7d3e27", "#d49b5e"] },
+      { name: "갈비탕", emoji: "🍖", colors: ["#926146", "#ead8b6"] },
+      { name: "순두부찌개", emoji: "🍛", colors: ["#cf4f31", "#f3b267"] },
+      { name: "파스타", emoji: "🍝", colors: ["#d5572f", "#f3cc63"] },
+      { name: "피자", emoji: "🍕", colors: ["#cf4b2b", "#f5be4f"] },
+      { name: "햄버거", emoji: "🍔", colors: ["#956134", "#e8bd68"] },
+      { name: "스테이크", emoji: "🥩", colors: ["#6f2f25", "#d68b58"] },
+      { name: "샐러드", emoji: "🥗", colors: ["#5c9143", "#d8eb92"] },
+      { name: "리조또", emoji: "🍚", colors: ["#c89f63", "#f4e1a1"] },
+      { name: "라자냐", emoji: "🧀", colors: ["#c84f2f", "#efbc63"] },
+      { name: "타코", emoji: "🌮", colors: ["#b55a30", "#f0c968"] },
+      { name: "초밥", emoji: "🍣", colors: ["#ef8a7d", "#fff0cf"] },
+      { name: "라멘", emoji: "🍜", colors: ["#9b572c", "#f1d17f"] },
+      { name: "우동", emoji: "🥢", colors: ["#8f6a46", "#efe3bd"] },
+      { name: "돈카츠", emoji: "🍛", colors: ["#a76a31", "#f0d97b"] },
+      { name: "팟타이", emoji: "🍤", colors: ["#b85a3a", "#f5c37a"] },
+      { name: "쌀국수", emoji: "🍜", colors: ["#8f7c5a", "#dde5cb"] },
+      { name: "마라탕", emoji: "🌶️", colors: ["#b92a2d", "#e97854"] },
+      { name: "딤섬", emoji: "🥟", colors: ["#bf7a54", "#f7d8a7"] },
+      { name: "치킨", emoji: "🍗", colors: ["#a55a2a", "#f1bb5f"] },
+      { name: "감자튀김", emoji: "🍟", colors: ["#d18f2e", "#f7d56f"] },
+      { name: "핫도그", emoji: "🌭", colors: ["#b3492a", "#efbe64"] },
+      { name: "도넛", emoji: "🍩", colors: ["#c96d6d", "#f6d9b8"] },
+      { name: "팬케이크", emoji: "🥞", colors: ["#c5854a", "#f4d089"] },
+      { name: "와플", emoji: "🧇", colors: ["#a26c32", "#efcb77"] },
+      { name: "빙수", emoji: "🍧", colors: ["#7fb4d8", "#f6f1ff"] },
+      { name: "케이크", emoji: "🍰", colors: ["#d48ea2", "#f7e1bf"] }
+    ].map((food) => ({ ...food, image: createFoodImage(food) }));
+
+    const state = {
+      title: "음식 월드컵",
+      selectedRound: 8,
+      currentRoundSize: 0,
+      currentMatch: 0,
+      contestants: [],
+      winners: []
+    };
+
+    const startOverlay = document.getElementById("startOverlay");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const cupTitle = document.getElementById("cupTitle");
+    const roundSelect = document.getElementById("roundSelect");
+
+    const titleText = document.getElementById("titleText");
+    const roundText = document.getElementById("roundText");
+    const arena = document.getElementById("arena");
+    const winnerScreen = document.getElementById("winnerScreen");
+
+    const leftCard = document.getElementById("leftCard");
+    const rightCard = document.getElementById("rightCard");
+    const leftImage = document.getElementById("leftImage");
+    const rightImage = document.getElementById("rightImage");
+    const leftName = document.getElementById("leftName");
+    const rightName = document.getElementById("rightName");
+
+    const winnerImage = document.getElementById("winnerImage");
+    const winnerName = document.getElementById("winnerName");
+    const winnerDesc = document.getElementById("winnerDesc");
+
+    startBtn.addEventListener("click", startWorldCup);
+    restartBtn.addEventListener("click", () => {
+      startOverlay.style.display = "flex";
+      arena.style.display = "grid";
+      winnerScreen.classList.remove("show");
+      roundText.textContent = "대기 중";
+    });
+    leftCard.addEventListener("click", () => pickWinner(0));
+    rightCard.addEventListener("click", () => pickWinner(1));
+
+    function startWorldCup() {
+      state.title = cupTitle.value.trim() || "음식 월드컵";
+      state.selectedRound = Number(roundSelect.value);
+      state.currentRoundSize = state.selectedRound;
+      state.currentMatch = 0;
+      state.winners = [];
+      state.contestants = shuffle([...foods]).slice(0, state.selectedRound);
+
+      titleText.textContent = state.title;
+      startOverlay.style.display = "none";
+      winnerScreen.classList.remove("show");
+      arena.style.display = "grid";
+
+      renderMatch();
+    }
+
+    function renderMatch() {
+      const left = state.contestants[state.currentMatch * 2];
+      const right = state.contestants[state.currentMatch * 2 + 1];
+
+      if (!left || !right) {
+        advanceRound();
+        return;
+      }
+
+      leftImage.src = left.image;
+      rightImage.src = right.image;
+      leftName.textContent = left.name;
+      rightName.textContent = right.name;
+      roundText.textContent = `${state.title} · ${state.currentRoundSize}강 ${state.currentMatch + 1}/${state.currentRoundSize / 2}`;
+    }
+
+    function pickWinner(index) {
+      const left = state.contestants[state.currentMatch * 2];
+      const right = state.contestants[state.currentMatch * 2 + 1];
+      const winner = index === 0 ? left : right;
+      state.winners.push(winner);
+      state.currentMatch += 1;
+
+      if (state.currentMatch >= state.currentRoundSize / 2) {
+        advanceRound();
+        return;
+      }
+
+      renderMatch();
+    }
+
+    function advanceRound() {
+      if (state.winners.length === 1) {
+        showWinner(state.winners[0]);
+        return;
+      }
+
+      state.contestants = state.winners;
+      state.currentRoundSize = state.contestants.length;
+      state.currentMatch = 0;
+      state.winners = [];
+      renderMatch();
+    }
+
+    function showWinner(food) {
+      arena.style.display = "none";
+      winnerScreen.classList.add("show");
+      titleText.textContent = state.title;
+      roundText.textContent = `${state.title} · 우승 결과`;
+      winnerImage.src = food.image;
+      winnerName.textContent = food.name;
+      winnerDesc.textContent = `${state.title}의 최종 1등은 ${food.name}입니다.`;
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createFoodImage(food) {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">
+          <defs>
+            <radialGradient id="glow1" cx="50%" cy="35%" r="34%">
+              <stop offset="0%" stop-color="#7b3fa6" stop-opacity="0.24"/>
+              <stop offset="100%" stop-color="#7b3fa6" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="glow2" cx="50%" cy="58%" r="40%">
+              <stop offset="0%" stop-color="#7b3fa6" stop-opacity="0.16"/>
+              <stop offset="100%" stop-color="#7b3fa6" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="900" height="1200" fill="#46a477"/>
+          <rect width="900" height="1200" fill="url(#glow1)"/>
+          <rect width="900" height="1200" fill="url(#glow2)"/>
+          <circle cx="760" cy="180" r="120" fill="rgba(255,255,255,0.18)"/>
+          <circle cx="180" cy="980" r="150" fill="rgba(255,255,255,0.14)"/>
+          <text x="450" y="420" text-anchor="middle" font-size="210">${food.emoji}</text>
+          <text x="450" y="680" text-anchor="middle" font-size="72" font-weight="800" fill="white">${food.name}</text>
+          <text x="450" y="760" text-anchor="middle" font-size="28" fill="rgba(255,255,255,0.86)">FOOD WORLD CUP</text>
+        </svg>
+      `;
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 포켓몬</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-top: #efffe6;
+      --bg-bottom: #d8fff1;
+      --ink: #1f3a2d;
+      --ink-soft: #557565;
+      --card: rgba(255, 255, 255, 0.72);
+      --line: rgba(31, 58, 45, 0.12);
+      --orange: #57c97a;
+      --yellow: #c4f36b;
+      --blue: #7ee5b5;
+      --mint: #8ce3c1;
+      --shadow: 0 24px 60px rgba(59, 121, 88, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Gowun Dodum", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(149, 238, 141, 0.62), transparent 26%),
+        radial-gradient(circle at top right, rgba(125, 236, 194, 0.58), transparent 28%),
+        radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.62), transparent 24%),
+        linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      overflow-x: hidden;
+      line-height: 1.65;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(10px);
+      opacity: 0.6;
+      z-index: 0;
+    }
+
+    body::before {
+      top: 70px;
+      left: -90px;
+      background: rgba(130, 229, 130, 0.45);
+    }
+
+    body::after {
+      right: -80px;
+      bottom: 40px;
+      background: rgba(97, 224, 177, 0.45);
+    }
+
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .sparkles span {
+      position: absolute;
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.9);
+      animation: twinkle 4.5s ease-in-out infinite;
+    }
+
+    .sparkles span::before,
+    .sparkles span::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+    }
+
+    .sparkles span::before {
+      width: 2px;
+      height: 20px;
+    }
+
+    .sparkles span::after {
+      width: 20px;
+      height: 2px;
+    }
+
+    .sparkles span:nth-child(1) { top: 10%; left: 9%; animation-delay: 0s; transform: scale(0.8); }
+    .sparkles span:nth-child(2) { top: 18%; left: 82%; animation-delay: 1.2s; transform: scale(1.1); }
+    .sparkles span:nth-child(3) { top: 38%; left: 14%; animation-delay: 2.1s; transform: scale(0.7); }
+    .sparkles span:nth-child(4) { top: 48%; left: 88%; animation-delay: 0.7s; transform: scale(1); }
+    .sparkles span:nth-child(5) { top: 72%; left: 11%; animation-delay: 1.7s; transform: scale(0.9); }
+    .sparkles span:nth-child(6) { top: 78%; left: 78%; animation-delay: 2.7s; transform: scale(0.75); }
+    .sparkles span:nth-child(7) { top: 58%; left: 57%; animation-delay: 3.1s; transform: scale(0.9); }
+    .sparkles span:nth-child(8) { top: 24%; left: 49%; animation-delay: 1.9s; transform: scale(0.65); }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.28; transform: scale(0.7); }
+      50% { opacity: 0.95; transform: scale(1.08); }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.55), transparent 72%);
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .intro {
+      padding: 34px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.58)),
+        linear-gradient(135deg, rgba(110, 218, 114, 0.22), rgba(126, 229, 181, 0.18));
+      text-align: left;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      color: #4f7b5a;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-family: "Jua", "Gowun Dodum", sans-serif;
+      font-size: clamp(2.7rem, 7vw, 5rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      color: #29503a;
+      text-shadow: 0 8px 24px rgba(255, 255, 255, 0.35);
+      word-break: keep-all;
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 54ch;
+      font-size: 1.05rem;
+      color: var(--ink-soft);
+      line-height: 1.72;
+    }
+
+    .intro-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .point {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(29, 35, 64, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .point strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .point span {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .lookup {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.6)),
+        linear-gradient(135deg, rgba(196, 243, 107, 0.18), rgba(140, 227, 193, 0.2));
+      text-align: left;
+    }
+
+    .lookup h2,
+    .result-card h2,
+    .mini-card h3,
+    .history-card h3 {
+      margin: 0 0 10px;
+      font-family: "Jua", "Gowun Dodum", sans-serif;
+      color: #2d6945;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      word-break: keep-all;
+    }
+
+    .lookup p,
+    .result-copy p,
+    .mini-card p,
+    .history-card p,
+    .helper {
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    .form {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    label {
+      font-size: 0.93rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      min-height: 54px;
+      border: 1px solid rgba(29, 35, 64, 0.12);
+      border-radius: 18px;
+      padding: 0 16px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+      outline: none;
+      font-family: inherit;
+    }
+
+    input:focus {
+      border-color: rgba(87, 201, 122, 0.42);
+      box-shadow: 0 0 0 4px rgba(126, 229, 181, 0.24);
+    }
+
+    button {
+      min-width: 146px;
+      min-height: 54px;
+      border: 0;
+      border-radius: 18px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, #5ccf7b, #78df96 55%, #c4f36b);
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: "Jua", "Gowun Dodum", sans-serif;
+      cursor: pointer;
+      box-shadow: 0 14px 30px rgba(87, 201, 122, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.28) inset;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(87, 201, 122, 0.34);
+    }
+
+    .helper {
+      font-size: 0.92rem;
+      margin: 0;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 22px;
+      margin-top: 22px;
+    }
+
+    .result-card {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 20px;
+      align-items: stretch;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.68)),
+        linear-gradient(135deg, rgba(126, 229, 181, 0.16), rgba(196, 243, 107, 0.16));
+    }
+
+    .result-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
+    }
+
+    .result-copy > * {
+      align-self: flex-start;
+    }
+
+    .result-visual {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      min-height: 320px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.24)),
+        linear-gradient(180deg, rgba(126, 229, 181, 0.28), rgba(196, 243, 107, 0.24));
+      border: 1px solid rgba(31, 58, 45, 0.08);
+    }
+
+    .result-visual::before {
+      content: "";
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.54);
+      filter: blur(6px);
+    }
+
+    .pokemon-image {
+      position: relative;
+      z-index: 1;
+      width: min(86%, 250px);
+      aspect-ratio: 1;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 22px rgba(72, 126, 95, 0.2));
+    }
+
+    .dex-id {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(31, 58, 45, 0.08);
+      color: var(--ink-soft);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .pokemon-name {
+      margin: 14px 0 6px;
+      font-family: "Jua", "Gowun Dodum", sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      color: #27513d;
+      word-break: keep-all;
+    }
+
+    .name-sub {
+      margin: 0 0 18px;
+      color: #6b7190;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .type-list,
+    .meta-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid rgba(29, 35, 64, 0.08);
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .blurb {
+      margin: 18px 0;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(29, 35, 64, 0.08);
+      color: #46506f;
+      line-height: 1.72;
+      text-align: left;
+    }
+
+    .fortune {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(87, 201, 122, 0.15), rgba(126, 229, 181, 0.16));
+      border: 1px solid rgba(31, 58, 45, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .fortune strong {
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1.45;
+    }
+
+    .fortune p {
+      margin: 0;
+      line-height: 1.65;
+      text-align: left;
+    }
+
+    .side {
+      display: grid;
+      gap: 22px;
+    }
+
+    .mini-card,
+    .history-card {
+      padding: 22px;
+      text-align: left;
+    }
+
+    .today-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(29, 35, 64, 0.08);
+    }
+
+    .today-ball {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ff7e6f 0 50%, #ffffff 50% 100%);
+      box-shadow: inset 0 0 0 3px rgba(29, 35, 64, 0.14);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .today-ball::before {
+      content: "";
+      position: absolute;
+      inset: 18px 0 auto 0;
+      height: 4px;
+      background: rgba(29, 35, 64, 0.26);
+    }
+
+    .today-ball::after {
+      content: "";
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid rgba(29, 35, 64, 0.26);
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .history-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(29, 35, 64, 0.08);
+      font-size: 0.94rem;
+      color: #4e5676;
+      cursor: pointer;
+      transition: transform 160ms ease, background 160ms ease;
+      line-height: 1.45;
+      text-align: left;
+    }
+
+    .history-item:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 100%;
+      text-align: center;
+      padding: 26px;
+      color: #6a728f;
+      line-height: 1.6;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #66708e;
+      font-weight: 700;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(127, 199, 255, 0.35);
+      border-top-color: #5b83ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .content,
+      .result-card {
+        grid-template-columns: 1fr;
+      }
+
+      .intro-points {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .sparkles span:nth-child(n+5) {
+        display: none;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 16px));
+        padding-top: 16px;
+      }
+
+      .intro,
+      .lookup,
+      .result-card,
+      .mini-card,
+      .history-card {
+        padding: 20px;
+      }
+
+      .input-row {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sparkles" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div class="page">
+    <section class="hero">
+      <article class="panel intro">
+        <span class="eyebrow">Daily Pokemon Match</span>
+        <h1>이름을 넣으면 오늘의 포켓몬이 나와요</h1>
+        <p>
+          당신의 이름과 오늘 날짜를 조합해서 오늘 하루의 포켓몬을 골라주는 페이지입니다.
+          같은 날에는 같은 이름으로 같은 결과가 나오고, 날짜가 바뀌면 새로운 포켓몬을 만나게 됩니다.
+        </p>
+        <div class="intro-points">
+          <div class="point">
+            <strong>오늘 기준</strong>
+            <span>이 페이지를 여는 날짜를 기준으로 매일 결과가 바뀝니다.</span>
+          </div>
+          <div class="point">
+            <strong>이름 맞춤</strong>
+            <span>입력한 이름마다 서로 다른 포켓몬이 정해집니다.</span>
+          </div>
+          <div class="point">
+            <strong>실시간 정보</strong>
+            <span>PokeAPI에서 도감 정보와 이미지를 불러와 보여줍니다.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel lookup">
+        <h2>오늘의 포켓몬 찾기</h2>
+          <p>닉네임도 괜찮아요. 이름을 입력하고 버튼을 누르면 오늘 당신과 가장 잘 어울리는 포켓몬을 보여줄게요.</p>
+        <form class="form" id="pokemon-form">
+          <label for="trainer-name">이름</label>
+          <div class="input-row">
+            <input id="trainer-name" name="trainerName" type="text" maxlength="30" placeholder="예: 세인, 피카, trainer99" autocomplete="off">
+            <button type="submit">오늘의 포켓몬 보기</button>
+          </div>
+          <p class="helper">팁: 같은 이름이라도 날짜가 달라지면 결과가 달라집니다.</p>
+        </form>
+      </article>
+    </section>
+
+    <section class="content">
+      <article class="panel result-card" id="result-card" aria-live="polite">
+        <div class="empty">
+          <div>
+            <h2>아직 포켓몬을 고르는 중이 아니에요</h2>
+            <p>이름을 입력하면 오늘의 포켓몬 카드가 여기 나타납니다.</p>
+          </div>
+        </div>
+      </article>
+
+      <aside class="side">
+        <section class="panel mini-card">
+          <h3>오늘의 기준</h3>
+          <div class="today-box">
+            <div class="today-ball"></div>
+            <div>
+              <strong id="today-date-label">-</strong>
+              <p class="helper" id="today-date-copy">브라우저의 오늘 날짜를 사용합니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel mini-card">
+          <h3>작동 방식</h3>
+          <p>이름 문자열과 오늘 날짜를 섞어서 도감 번호를 만들고, 그 번호에 해당하는 포켓몬 정보를 불러옵니다.</p>
+          <p class="helper">같은 날, 같은 이름이면 결과도 같습니다.</p>
+        </section>
+
+        <section class="panel history-card">
+          <h3>추천 입력 예시</h3>
+          <p>아래 이름으로 눌러 보면 감이 빨리 와요.</p>
+          <div class="history-list">
+            <div class="history-item">세인</div>
+            <div class="history-item">코라이돈좋아</div>
+            <div class="history-item">미라이돈러버</div>
+            <div class="history-item">팔데아트레이너</div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    const TOTAL_POKEMON = 1025;
+    const form = document.getElementById("pokemon-form");
+    const nameInput = document.getElementById("trainer-name");
+    const resultCard = document.getElementById("result-card");
+    const todayDateLabel = document.getElementById("today-date-label");
+    const todayDateCopy = document.getElementById("today-date-copy");
+
+    const typeKoMap = {
+      normal: "노말",
+      fire: "불꽃",
+      water: "물",
+      electric: "전기",
+      grass: "풀",
+      ice: "얼음",
+      fighting: "격투",
+      poison: "독",
+      ground: "땅",
+      flying: "비행",
+      psychic: "에스퍼",
+      bug: "벌레",
+      rock: "바위",
+      ghost: "고스트",
+      dragon: "드래곤",
+      dark: "악",
+      steel: "강철",
+      fairy: "페어리"
+    };
+
+    const fortunes = [
+      "오늘은 정면 돌파보다 리듬을 타듯 움직일수록 흐름이 좋아져요.",
+      "사소한 선택 하나가 예상보다 좋은 결과로 이어질 수 있는 날이에요.",
+      "혼자 다 하려 하기보다 주변 사람과 템포를 맞추면 훨씬 편해져요.",
+      "기분 좋은 호기심이 행운 포인트예요. 새로운 걸 가볍게 눌러 보세요.",
+      "잠깐 쉬어 가는 선택이 오히려 집중력을 더 크게 끌어올려 줄 수 있어요.",
+      "오늘은 센스가 잘 통하는 날이라, 감으로 한 선택도 꽤 정확할 가능성이 높아요.",
+      "너무 완벽하려 하지 않아도 괜찮아요. 일단 시작하면 생각보다 금방 풀립니다.",
+      "평소보다 조금 더 자신 있게 말해도 좋아요. 분위기를 끌고 갈 힘이 있어요."
+    ];
+
+    function getTodayKey() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatTodayLabel() {
+      const now = new Date();
+      return new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long"
+      }).format(now);
+    }
+
+    function hashString(value) {
+      let hash = 0;
+      for (let index = 0; index < value.length; index += 1) {
+        hash = ((hash << 5) - hash) + value.charCodeAt(index);
+        hash |= 0;
+      }
+      return Math.abs(hash);
+    }
+
+    function getPokemonIdByName(inputName) {
+      const cleanName = inputName.trim().toLowerCase();
+      const todayKey = getTodayKey();
+      const hash = hashString(`${cleanName}::${todayKey}`);
+      return (hash % TOTAL_POKEMON) + 1;
+    }
+
+    function getFortune(inputName, pokemonId) {
+      const pick = (hashString(`${inputName}-${pokemonId}-${getTodayKey()}`) % fortunes.length);
+      return fortunes[pick];
+    }
+
+    function sanitizeText(text) {
+      return text.replace(/\f|\n|\r/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function getKoreanName(speciesData) {
+      return speciesData.names.find((entry) => entry.language.name === "ko")?.name;
+    }
+
+    function getFlavorText(speciesData) {
+      const korean = speciesData.flavor_text_entries.find((entry) => entry.language.name === "ko");
+      const english = speciesData.flavor_text_entries.find((entry) => entry.language.name === "en");
+      return sanitizeText(korean?.flavor_text || english?.flavor_text || "오늘의 포켓몬 설명을 아직 찾지 못했어요.");
+    }
+
+    function getGenera(speciesData) {
+      const korean = speciesData.genera.find((entry) => entry.language.name === "ko");
+      const english = speciesData.genera.find((entry) => entry.language.name === "en");
+      return korean?.genus || english?.genus || "포켓몬";
+    }
+
+    function renderLoading(name) {
+      resultCard.innerHTML = `
+        <div class="empty">
+          <div class="loading">
+            <span class="spinner"></span>
+            <span>${name}님의 오늘의 포켓몬을 찾고 있어요...</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderError() {
+      resultCard.innerHTML = `
+        <div class="empty">
+          <div>
+            <h2>포켓몬 정보를 불러오지 못했어요</h2>
+            <p>PokeAPI 연결이 잠시 불안정할 수 있어요. 잠시 뒤 다시 시도해 주세요.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPokemonCard(inputName, pokemonData, speciesData) {
+      const dexId = String(pokemonData.id).padStart(4, "0");
+      const koreanName = getKoreanName(speciesData) || pokemonData.name;
+      const englishName = pokemonData.name;
+      const genera = getGenera(speciesData);
+      const flavorText = getFlavorText(speciesData);
+      const artwork =
+        pokemonData.sprites.other["official-artwork"].front_default ||
+        pokemonData.sprites.other.home.front_default ||
+        pokemonData.sprites.front_default;
+
+      const types = pokemonData.types
+        .sort((a, b) => a.slot - b.slot)
+        .map((entry) => `<span class="chip">${typeKoMap[entry.type.name] || entry.type.name}</span>`)
+        .join("");
+
+      const height = (pokemonData.height / 10).toFixed(1);
+      const weight = (pokemonData.weight / 10).toFixed(1);
+      const fortune = getFortune(inputName, pokemonData.id);
+
+      resultCard.innerHTML = `
+        <div class="result-visual">
+          <img class="pokemon-image" src="${artwork}" alt="${koreanName}">
+        </div>
+        <div class="result-copy">
+          <span class="dex-id">No.${dexId}</span>
+          <h2 class="pokemon-name">${koreanName}</h2>
+          <p class="name-sub">${englishName} · ${genera}</p>
+          <div class="type-list">${types}</div>
+          <div class="blurb">${flavorText}</div>
+          <div class="meta-list">
+            <span class="chip">키 ${height}m</span>
+            <span class="chip">몸무게 ${weight}kg</span>
+            <span class="chip">${inputName}님의 오늘 포켓몬</span>
+          </div>
+          <div class="fortune">
+            <strong>오늘의 한마디</strong>
+            <p>${fortune}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    async function fetchPokemonById(id) {
+      const [pokemonResponse, speciesResponse] = await Promise.all([
+        fetch(`https://pokeapi.co/api/v2/pokemon/${id}`),
+        fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`)
+      ]);
+
+      if (!pokemonResponse.ok || !speciesResponse.ok) {
+        throw new Error("Failed to fetch pokemon data");
+      }
+
+      return Promise.all([pokemonResponse.json(), speciesResponse.json()]);
+    }
+    
+    async function handleSubmit(event) {
+      event.preventDefault();
+      const rawName = nameInput.value.trim();
+
+      if (!rawName) {
+        nameInput.focus();
+        return;
+      }
+
+      renderLoading(rawName);
+
+      try {
+        const pokemonId = getPokemonIdByName(rawName);
+        const [pokemonData, speciesData] = await fetchPokemonById(pokemonId);
+        renderPokemonCard(rawName, pokemonData, speciesData);
+        localStorage.setItem("today-pokemon-name", rawName);
+      } catch (error) {
+        renderError();
+      }
+    }
+
+    function initDate() {
+      todayDateLabel.textContent = formatTodayLabel();
+      todayDateCopy.textContent = `${getTodayKey()} 기준으로 결과가 정해져요.`;
+    }
+
+    function initSavedName() {
+      const savedName = localStorage.getItem("today-pokemon-name");
+      if (savedName) {
+        nameInput.value = savedName;
+      }
+    }
+
+    function initExampleClicks() {
+      document.querySelectorAll(".history-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          nameInput.value = item.textContent.trim();
+          form.requestSubmit();
+        });
+      });
+    }
+
+    initDate();
+    initSavedName();
+    initExampleClicks();
+    form.addEventListener("submit", handleSubmit);
+  </script>
+</body>
+</html>
