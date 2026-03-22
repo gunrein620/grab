@@ -6,15 +6,15 @@
   <title>냥글냥글 실험실</title>
   <style>
     :root {
-      --bg-top: #fff5df;
-      --bg-bottom: #ffd3a8;
-      --card: rgba(255, 251, 243, 0.84);
-      --line: #3b2415;
-      --accent: #f97316;
-      --accent-soft: #fdba74;
-      --accent-deep: #dd6b20;
-      --green: #2f855a;
-      --shadow: 0 18px 45px rgba(94, 45, 15, 0.16);
+      --bg-top: #ecfff4;
+      --bg-bottom: #9fe3bc;
+      --card: rgba(247, 255, 250, 0.84);
+      --line: #173126;
+      --accent: #22a06b;
+      --accent-soft: #91e0b0;
+      --accent-deep: #176b48;
+      --green: #1f8f5f;
+      --shadow: 0 18px 45px rgba(16, 68, 45, 0.16);
       --laser-x: 50%;
       --laser-y: 58%;
       --pupil-x: 0px;
@@ -32,7 +32,7 @@
       color: var(--line);
       background:
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(255, 237, 213, 0.9), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(188, 245, 214, 0.9), transparent 24%),
         linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
       overflow-x: hidden;
     }
@@ -71,7 +71,7 @@
       gap: 8px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(255, 237, 213, 0.95);
+      background: rgba(224, 251, 235, 0.95);
       font-size: 0.95rem;
       font-weight: 700;
     }
@@ -105,14 +105,14 @@
       font-weight: 800;
       color: #fffaf4;
       background: linear-gradient(135deg, var(--accent), var(--accent-deep));
-      box-shadow: 0 12px 22px rgba(249, 115, 22, 0.26);
+      box-shadow: 0 12px 22px rgba(34, 160, 107, 0.26);
       cursor: pointer;
       transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
     }
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 16px 30px rgba(249, 115, 22, 0.28);
+      box-shadow: 0 16px 30px rgba(34, 160, 107, 0.28);
       filter: saturate(1.08);
     }
 
@@ -122,16 +122,16 @@
 
     button.secondary {
       color: var(--line);
-      background: linear-gradient(135deg, #fff7ed, #fed7aa);
-      box-shadow: 0 12px 22px rgba(148, 91, 28, 0.14);
+      background: linear-gradient(135deg, #f4fff8, #bfeccf);
+      box-shadow: 0 12px 22px rgba(30, 102, 69, 0.14);
     }
 
     .status-bar {
       margin-top: 24px;
       padding: 18px 20px;
       border-radius: 22px;
-      background: rgba(255, 248, 235, 0.9);
-      border: 1px dashed rgba(59, 36, 21, 0.18);
+      background: rgba(245, 255, 248, 0.9);
+      border: 1px dashed rgba(23, 49, 38, 0.18);
     }
 
     .status-head {
@@ -145,7 +145,7 @@
     .mood-track {
       height: 16px;
       border-radius: 999px;
-      background: rgba(255, 213, 170, 0.6);
+      background: rgba(176, 226, 195, 0.7);
       overflow: hidden;
     }
 
@@ -153,7 +153,7 @@
       width: 42%;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #f59e0b, #22c55e);
+      background: linear-gradient(90deg, #34d399, #166534);
       transition: width 240ms ease;
     }
 
@@ -171,7 +171,7 @@
       position: relative;
       background:
         radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.9), transparent 26%),
-        linear-gradient(180deg, rgba(255, 250, 240, 0.85), rgba(255, 230, 192, 0.95));
+        linear-gradient(180deg, rgba(244, 255, 248, 0.88), rgba(198, 239, 215, 0.98));
     }
 
     .cat-stage {
@@ -191,8 +191,8 @@
       left: var(--laser-x);
       top: var(--laser-y);
       transform: translate(-50%, -50%) scale(0.25);
-      background: radial-gradient(circle, #fffbfb, #ef4444 38%, #b91c1c 72%);
-      box-shadow: 0 0 18px rgba(239, 68, 68, 0.65);
+      background: radial-gradient(circle, #f7fff9, #34d399 38%, #166534 72%);
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.65);
       opacity: 0;
       transition: opacity 180ms ease, transform 180ms ease;
       z-index: 4;
@@ -242,7 +242,7 @@
       right: 36px;
       bottom: 0;
       height: 172px;
-      background: #f7bf63;
+      background: #d7f2d9;
       border: 8px solid var(--line);
       border-radius: 46% 46% 38% 38% / 44% 44% 22% 22%;
       z-index: 1;
@@ -251,7 +251,7 @@
     .belly {
       position: absolute;
       inset: 34px 44px 20px;
-      background: rgba(255, 242, 216, 0.92);
+      background: rgba(245, 255, 247, 0.92);
       border-radius: 44%;
     }
 
@@ -261,7 +261,7 @@
       top: 24px;
       width: 220px;
       height: 204px;
-      background: #ffd27b;
+      background: #e0f7e4;
       border: 8px solid var(--line);
       border-radius: 48%;
       z-index: 2;
@@ -272,7 +272,7 @@
       top: -24px;
       width: 76px;
       height: 90px;
-      background: #f7bf63;
+      background: #d7f2d9;
       border: 8px solid var(--line);
       border-radius: 28px 28px 12px 12px;
       z-index: -1;
@@ -282,7 +282,7 @@
       content: "";
       position: absolute;
       inset: 16px 14px 10px;
-      background: #ffc9cf;
+      background: #a7efc4;
       clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
     }
 
@@ -302,7 +302,7 @@
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: #fffef7;
+      background: #fcfff8;
       border: 6px solid var(--line);
       overflow: hidden;
     }
@@ -345,7 +345,7 @@
       width: 24px;
       height: 18px;
       border-radius: 50% 50% 64% 64%;
-      background: #ff8da1;
+      background: #6ad39b;
       transform: translateX(-50%);
     }
 
@@ -403,7 +403,7 @@
       bottom: 12px;
       width: 64px;
       height: 88px;
-      background: #ffd27b;
+      background: #e0f7e4;
       border: 8px solid var(--line);
       border-radius: 34px;
       z-index: 2;
@@ -431,8 +431,8 @@
     .badge {
       padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(255, 247, 237, 0.92);
-      border: 1px solid rgba(59, 36, 21, 0.12);
+      background: rgba(244, 255, 248, 0.92);
+      border: 1px solid rgba(23, 49, 38, 0.12);
       font-weight: 700;
     }
 
@@ -446,7 +446,7 @@
     .stat {
       padding: 16px;
       border-radius: 20px;
-      background: rgba(255, 248, 235, 0.92);
+      background: rgba(244, 255, 248, 0.92);
       text-align: center;
     }
 
@@ -469,7 +469,7 @@
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       animation: drift-up 1.8s ease forwards;
       user-select: none;
-      filter: drop-shadow(0 8px 10px rgba(59, 36, 21, 0.16));
+      filter: drop-shadow(0 8px 10px rgba(23, 49, 38, 0.16));
     }
 
     .paw-print {
@@ -488,7 +488,7 @@
     .paw-print i {
       content: "";
       position: absolute;
-      background: rgba(124, 58, 18, 0.14);
+      background: rgba(20, 88, 59, 0.14);
       border-radius: 50%;
     }
 
@@ -526,7 +526,7 @@
       inset: auto 18px 18px;
       height: 28px;
       border-radius: 50%;
-      background: rgba(97, 57, 24, 0.1);
+      background: rgba(20, 88, 59, 0.1);
       filter: blur(10px);
     }
 
