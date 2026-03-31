@@ -67,7 +67,7 @@
                 </div>
             </section>
 
-            <section class="panel">
+            <section class="panel timeline-panel">
                 <p class="panel-kicker">Timeline</p>
                 <strong class="panel-heading">이동 기록</strong>
                 <ol class="moves" id="moveList"></ol>
@@ -467,9 +467,16 @@
             margin: 0;
             padding-left: 18px;
             line-height: 1.7;
+            height: 280px;
             max-height: 280px;
             overflow: auto;
+            scrollbar-gutter: stable;
             color: var(--muted);
+        }
+
+        .timeline-panel {
+            display: flex;
+            flex-direction: column;
         }
 
         .moves:empty::before {
