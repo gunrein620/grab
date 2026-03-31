@@ -5,6 +5,87 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>간단 체스 웹</title>
+</head>
+<body>
+    <main class="app">
+        <section class="board-wrap">
+            <div class="board-stage">
+                <div class="stage-header">
+                    <div>
+                        <p class="eyebrow">Mini Match</p>
+                        <h1>간단 체스 웹</h1>
+                    </div>
+                    <div class="stage-badge">Browser Chess</div>
+                </div>
+
+                <p class="board-copy">
+                    군더더기 없이 바로 두어볼 수 있는 싱글 페이지 체스판입니다.
+                    화면 분위기만 더 세련되게 다듬고, 플레이 흐름은 그대로 유지했습니다.
+                </p>
+
+                <div class="board-shell">
+                    <div class="file-labels top">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+
+                    <div class="board-frame">
+                        <div class="rank-labels">
+                            <span>8</span><span>7</span><span>6</span><span>5</span>
+                            <span>4</span><span>3</span><span>2</span><span>1</span>
+                        </div>
+                        <div class="board" id="board" aria-label="체스판"></div>
+                    </div>
+
+                    <div class="file-labels bottom">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="side">
+            <section class="panel">
+                <p class="panel-kicker">Quick Start</p>
+                <p class="subtitle">
+                    말 클릭 후 이동 가능한 칸을 다시 누르면 이동합니다.
+                    체크, 캐슬링, 앙파상은 제외한 가벼운 체험용 체스입니다.
+                </p>
+            </section>
+
+            <section class="panel status-panel">
+                <div class="status-label">Current Turn</div>
+                <div class="status turn-white" id="status">백 차례입니다.</div>
+                <p class="hint" id="selectionHint">움직일 말을 선택해 주세요.</p>
+            </section>
+
+            <section class="panel">
+                <p class="panel-kicker">Control</p>
+                <div class="controls">
+                    <button type="button" id="resetButton">초기화</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <p class="panel-kicker">Timeline</p>
+                <strong class="panel-heading">이동 기록</strong>
+                <ol class="moves" id="moveList"></ol>
+            </section>
+
+            <section class="panel">
+                <p class="panel-kicker">Guide</p>
+                <strong class="panel-heading">빠른 안내</strong>
+                <div class="legend">
+                    <span>노란 테두리: 선택한 말</span>
+                    <span>초록 점: 이동 가능</span>
+                    <span>빨간 원: 잡을 수 있는 말</span>
+                    <span>폰은 끝줄에 가면 퀸으로 승급</span>
+                </div>
+            </section>
+        </aside>
+    </main>
+
     <style>
         :root {
             --bg-top: #081221;
@@ -520,86 +601,6 @@
             }
         }
     </style>
-</head>
-<body>
-    <main class="app">
-        <section class="board-wrap">
-            <div class="board-stage">
-                <div class="stage-header">
-                    <div>
-                        <p class="eyebrow">Mini Match</p>
-                        <h1>간단 체스 웹</h1>
-                    </div>
-                    <div class="stage-badge">Browser Chess</div>
-                </div>
-
-                <p class="board-copy">
-                    군더더기 없이 바로 두어볼 수 있는 싱글 페이지 체스판입니다.
-                    화면 분위기만 더 세련되게 다듬고, 플레이 흐름은 그대로 유지했습니다.
-                </p>
-
-                <div class="board-shell">
-                    <div class="file-labels top">
-                        <span>a</span><span>b</span><span>c</span><span>d</span>
-                        <span>e</span><span>f</span><span>g</span><span>h</span>
-                    </div>
-
-                    <div class="board-frame">
-                        <div class="rank-labels">
-                            <span>8</span><span>7</span><span>6</span><span>5</span>
-                            <span>4</span><span>3</span><span>2</span><span>1</span>
-                        </div>
-                        <div class="board" id="board" aria-label="체스판"></div>
-                    </div>
-
-                    <div class="file-labels bottom">
-                        <span>a</span><span>b</span><span>c</span><span>d</span>
-                        <span>e</span><span>f</span><span>g</span><span>h</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <aside class="side">
-            <section class="panel">
-                <p class="panel-kicker">Quick Start</p>
-                <p class="subtitle">
-                    말 클릭 후 이동 가능한 칸을 다시 누르면 이동합니다.
-                    체크, 캐슬링, 앙파상은 제외한 가벼운 체험용 체스입니다.
-                </p>
-            </section>
-
-            <section class="panel status-panel">
-                <div class="status-label">Current Turn</div>
-                <div class="status turn-white" id="status">백 차례입니다.</div>
-                <p class="hint" id="selectionHint">움직일 말을 선택해 주세요.</p>
-            </section>
-
-            <section class="panel">
-                <p class="panel-kicker">Control</p>
-                <div class="controls">
-                    <button type="button" id="resetButton">초기화</button>
-                </div>
-            </section>
-
-            <section class="panel">
-                <p class="panel-kicker">Timeline</p>
-                <strong class="panel-heading">이동 기록</strong>
-                <ol class="moves" id="moveList"></ol>
-            </section>
-
-            <section class="panel">
-                <p class="panel-kicker">Guide</p>
-                <strong class="panel-heading">빠른 안내</strong>
-                <div class="legend">
-                    <span>노란 테두리: 선택한 말</span>
-                    <span>초록 점: 이동 가능</span>
-                    <span>빨간 원: 잡을 수 있는 말</span>
-                    <span>폰은 끝줄에 가면 퀸으로 승급</span>
-                </div>
-            </section>
-        </aside>
-    </main>
 
     <script>
         const boardElement = document.getElementById("board");
