@@ -88,15 +88,15 @@
 
     <style>
         :root {
-            --bg-top: #081221;
-            --bg-bottom: #13243c;
-            --panel: rgba(8, 18, 33, 0.72);
-            --panel-strong: rgba(10, 22, 40, 0.9);
-            --panel-border: rgba(172, 188, 214, 0.18);
-            --board-dark: #6a7487;
-            --board-light: #efe7d7;
-            --accent: #f3ba63;
-            --accent-soft: rgba(243, 186, 99, 0.16);
+            --bg-top: #071610;
+            --bg-bottom: #143325;
+            --panel: rgba(9, 28, 20, 0.72);
+            --panel-strong: rgba(10, 34, 24, 0.9);
+            --panel-border: rgba(153, 203, 169, 0.18);
+            --board-dark: #65755d;
+            --board-light: #e5edd8;
+            --accent: #84d39a;
+            --accent-soft: rgba(132, 211, 154, 0.16);
             --text: #edf2ff;
             --muted: rgba(237, 242, 255, 0.72);
             --shadow: 0 28px 80px rgba(2, 7, 16, 0.52);
@@ -116,8 +116,8 @@
 
         body::before {
             background:
-                radial-gradient(circle at 12% 18%, rgba(243, 186, 99, 0.18), transparent 22%),
-                radial-gradient(circle at 84% 12%, rgba(110, 169, 255, 0.16), transparent 24%),
+                radial-gradient(circle at 12% 18%, rgba(132, 211, 154, 0.2), transparent 22%),
+                radial-gradient(circle at 84% 12%, rgba(80, 188, 139, 0.16), transparent 24%),
                 radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 36%);
         }
 
@@ -165,8 +165,8 @@
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(135deg, rgba(243, 186, 99, 0.08), transparent 30%),
-                linear-gradient(315deg, rgba(110, 169, 255, 0.08), transparent 26%);
+                linear-gradient(135deg, rgba(132, 211, 154, 0.12), transparent 30%),
+                linear-gradient(315deg, rgba(80, 188, 139, 0.08), transparent 26%);
             pointer-events: none;
         }
 
@@ -203,9 +203,9 @@
 
         .stage-badge {
             flex-shrink: 0;
-            border: 1px solid rgba(243, 186, 99, 0.28);
-            background: rgba(243, 186, 99, 0.12);
-            color: #ffe8bf;
+            border: 1px solid rgba(132, 211, 154, 0.28);
+            background: rgba(132, 211, 154, 0.12);
+            color: #e6ffe9;
             border-radius: 999px;
             padding: 10px 14px;
             font-size: 12px;
@@ -334,7 +334,7 @@
 
         .square.selected {
             box-shadow:
-                inset 0 0 0 4px rgba(243, 186, 99, 0.98),
+                inset 0 0 0 4px rgba(132, 211, 154, 0.98),
                 inset 0 0 26px rgba(255, 255, 255, 0.14);
         }
 
@@ -432,7 +432,7 @@
 
         .status-panel {
             background:
-                linear-gradient(135deg, rgba(243, 186, 99, 0.12), transparent 55%),
+                linear-gradient(135deg, rgba(132, 211, 154, 0.14), transparent 55%),
                 var(--panel-strong);
         }
 
@@ -442,7 +442,7 @@
             padding: 7px 12px;
             border-radius: 999px;
             background: var(--accent-soft);
-            color: #ffe8bf;
+            color: #e6ffe9;
             font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.08em;
@@ -460,7 +460,7 @@
         }
 
         .status.turn-black {
-            color: #ffe0cf;
+            color: #d9ffe3;
         }
 
         .moves {
@@ -497,16 +497,16 @@
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            background: linear-gradient(135deg, #f3ba63, #d48927);
-            color: #1e160d;
-            box-shadow: 0 12px 24px rgba(212, 137, 39, 0.28);
+            background: linear-gradient(135deg, #84d39a, #3f9f5f);
+            color: #082113;
+            box-shadow: 0 12px 24px rgba(63, 159, 95, 0.28);
             transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
         }
 
         .controls button:hover {
             transform: translateY(-2px);
             opacity: 0.96;
-            box-shadow: 0 18px 30px rgba(212, 137, 39, 0.34);
+            box-shadow: 0 18px 30px rgba(63, 159, 95, 0.34);
         }
 
         .hint {
