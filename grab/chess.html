@@ -4,9 +4,567 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>간단 체스 웹</title>
+    <style>
+        :root {
+            --bg: #f3ede4;
+            --panel: #fffaf3;
+            --dark: #6b4f3a;
+            --light: #efe2c6;
+            --accent: #b7791f;
+            --text: #2f241d;
+            --shadow: 0 18px 40px rgba(47, 36, 29, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(255, 255, 255, 0.8), transparent 35%),
+                linear-gradient(180deg, #f9f3ea 0%, var(--bg) 100%);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .app {
+            width: min(100%, 980px);
+            background: rgba(255, 250, 243, 0.94);
+            border: 1px solid rgba(107, 79, 58, 0.18);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: minmax(280px, 560px) minmax(240px, 1fr);
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .board-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .board {
+            width: min(100%, 560px);
+            aspect-ratio: 1 / 1;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            border: 14px solid #4b3728;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #4b3728;
+        }
+
+        .square {
+            position: relative;
+            border: none;
+            cursor: pointer;
+            font-size: clamp(26px, 4vw, 42px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            padding: 0;
+        }
+
+        .square:hover {
+            transform: scale(0.98);
+            z-index: 1;
+        }
+
+        .square.light {
+            background: var(--light);
+        }
+
+        .square.dark {
+            background: var(--dark);
+        }
+
+        .square.selected {
+            box-shadow: inset 0 0 0 4px rgba(255, 209, 102, 0.95);
+        }
+
+        .square.movable::after {
+            content: "";
+            position: absolute;
+            width: 26%;
+            height: 26%;
+            border-radius: 50%;
+            background: rgba(27, 94, 32, 0.62);
+        }
+
+        .square.capture::after {
+            content: "";
+            position: absolute;
+            inset: 10%;
+            border-radius: 50%;
+            border: 5px solid rgba(183, 34, 34, 0.9);
+        }
+
+        .piece.white {
+            color: #fffdf8;
+            text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+        }
+
+        .piece.black {
+            color: #1d130d;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(107, 79, 58, 0.12);
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: clamp(28px, 4vw, 40px);
+        }
+
+        .subtitle {
+            margin: 0;
+            line-height: 1.6;
+            color: rgba(47, 36, 29, 0.8);
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .status.turn-white {
+            color: #22543d;
+        }
+
+        .status.turn-black {
+            color: #742a2a;
+        }
+
+        .moves {
+            margin: 0;
+            padding-left: 18px;
+            line-height: 1.7;
+            max-height: 260px;
+            overflow: auto;
+        }
+
+        .moves:empty::before {
+            content: "아직 이동 기록이 없습니다.";
+            color: rgba(47, 36, 29, 0.6);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            border: none;
+            border-radius: 999px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #2f241d;
+            color: #fffaf3;
+            transition: transform 0.12s ease, opacity 0.12s ease;
+        }
+
+        .controls button:hover {
+            transform: translateY(-1px);
+            opacity: 0.92;
+        }
+
+        .hint {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(47, 36, 29, 0.72);
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            font-size: 14px;
+            color: rgba(47, 36, 29, 0.75);
+        }
+
+        @media (max-width: 860px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 540px) {
+            body {
+                padding: 14px;
+            }
+
+            .app {
+                padding: 16px;
+                border-radius: 22px;
+            }
+
+            .panel {
+                padding: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-    체스 만들꺼임
+    <main class="app">
+        <section class="board-wrap">
+            <div class="board" id="board" aria-label="체스판"></div>
+        </section>
+
+        <aside class="side">
+            <section class="panel">
+                <h1>간단 체스 웹</h1>
+                <p class="subtitle">
+                    말 클릭 후 이동 가능한 칸을 다시 누르면 이동합니다.
+                    체크, 캐슬링, 앙파상은 제외한 가벼운 체험용 체스입니다.
+                </p>
+            </section>
+
+            <section class="panel">
+                <div class="status turn-white" id="status">백 차례입니다.</div>
+                <p class="hint" id="selectionHint">움직일 말을 선택해 주세요.</p>
+            </section>
+
+            <section class="panel">
+                <div class="controls">
+                    <button type="button" id="resetButton">초기화</button>
+                </div>
+            </section>
+
+            <section class="panel">
+                <strong>이동 기록</strong>
+                <ol class="moves" id="moveList"></ol>
+            </section>
+
+            <section class="panel">
+                <strong>빠른 안내</strong>
+                <div class="legend">
+                    <span>노란 테두리: 선택한 말</span>
+                    <span>초록 점: 이동 가능</span>
+                    <span>빨간 원: 잡을 수 있는 말</span>
+                    <span>폰은 끝줄에 가면 퀸으로 승급</span>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <script>
+        const boardElement = document.getElementById("board");
+        const statusElement = document.getElementById("status");
+        const selectionHintElement = document.getElementById("selectionHint");
+        const moveListElement = document.getElementById("moveList");
+        const resetButton = document.getElementById("resetButton");
+
+        const pieceSymbols = {
+            wp: "♙",
+            wr: "♖",
+            wn: "♘",
+            wb: "♗",
+            wq: "♕",
+            wk: "♔",
+            bp: "♟",
+            br: "♜",
+            bn: "♞",
+            bb: "♝",
+            bq: "♛",
+            bk: "♚"
+        };
+
+        const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+        let board = [];
+        let currentTurn = "w";
+        let selected = null;
+        let legalMoves = [];
+        let moveHistory = [];
+
+        function createInitialBoard() {
+            return [
+                ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
+                ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+                ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"]
+            ];
+        }
+
+        function inBounds(row, col) {
+            return row >= 0 && row < 8 && col >= 0 && col < 8;
+        }
+
+        function getPieceColor(piece) {
+            return piece ? piece[0] : null;
+        }
+
+        function getPieceType(piece) {
+            return piece ? piece[1] : null;
+        }
+
+        function toSquareName(row, col) {
+            return files[col] + (8 - row);
+        }
+
+        function resetGame() {
+            board = createInitialBoard();
+            currentTurn = "w";
+            selected = null;
+            legalMoves = [];
+            moveHistory = [];
+            render();
+        }
+
+        function render() {
+            boardElement.innerHTML = "";
+
+            for (let row = 0; row < 8; row += 1) {
+                for (let col = 0; col < 8; col += 1) {
+                    const piece = board[row][col];
+                    const square = document.createElement("button");
+                    const isLight = (row + col) % 2 === 0;
+                    const move = legalMoves.find((item) => item.row === row && item.col === col);
+
+                    square.type = "button";
+                    square.className = "square " + (isLight ? "light" : "dark");
+                    square.setAttribute("aria-label", toSquareName(row, col));
+
+                    if (selected && selected.row === row && selected.col === col) {
+                        square.classList.add("selected");
+                    }
+
+                    if (move) {
+                        square.classList.add(move.capture ? "capture" : "movable");
+                    }
+
+                    if (piece) {
+                        const pieceSpan = document.createElement("span");
+                        pieceSpan.className = "piece " + (getPieceColor(piece) === "w" ? "white" : "black");
+                        pieceSpan.textContent = pieceSymbols[piece];
+                        square.appendChild(pieceSpan);
+                    }
+
+                    square.addEventListener("click", () => handleSquareClick(row, col));
+                    boardElement.appendChild(square);
+                }
+            }
+
+            statusElement.textContent = currentTurn === "w" ? "백 차례입니다." : "흑 차례입니다.";
+            statusElement.className = "status " + (currentTurn === "w" ? "turn-white" : "turn-black");
+
+            if (selected) {
+                selectionHintElement.textContent =
+                    toSquareName(selected.row, selected.col) + "의 말을 선택했습니다. 이동할 칸을 눌러 주세요.";
+            } else {
+                selectionHintElement.textContent = "움직일 말을 선택해 주세요.";
+            }
+
+            moveListElement.innerHTML = "";
+            moveHistory.forEach((text) => {
+                const item = document.createElement("li");
+                item.textContent = text;
+                moveListElement.appendChild(item);
+            });
+        }
+
+        function handleSquareClick(row, col) {
+            const piece = board[row][col];
+            const move = legalMoves.find((item) => item.row === row && item.col === col);
+
+            if (move && selected) {
+                makeMove(selected.row, selected.col, row, col, move.capture);
+                return;
+            }
+
+            if (!piece) {
+                selected = null;
+                legalMoves = [];
+                render();
+                return;
+            }
+
+            if (getPieceColor(piece) !== currentTurn) {
+                selected = null;
+                legalMoves = [];
+                render();
+                return;
+            }
+
+            selected = { row, col };
+            legalMoves = getLegalMoves(row, col);
+            render();
+        }
+
+        function makeMove(fromRow, fromCol, toRow, toCol, capture) {
+            const movingPiece = board[fromRow][fromCol];
+            const targetPiece = board[toRow][toCol];
+
+            board[toRow][toCol] = movingPiece;
+            board[fromRow][fromCol] = null;
+
+            if (movingPiece === "wp" && toRow === 0) {
+                board[toRow][toCol] = "wq";
+            }
+
+            if (movingPiece === "bp" && toRow === 7) {
+                board[toRow][toCol] = "bq";
+            }
+
+            const moveText =
+                (currentTurn === "w" ? "백" : "흑") +
+                " " +
+                pieceSymbols[movingPiece] +
+                " " +
+                toSquareName(fromRow, fromCol) +
+                (capture ? " x " : " -> ") +
+                toSquareName(toRow, toCol) +
+                (targetPiece ? " (" + pieceSymbols[targetPiece] + ")" : "");
+
+            moveHistory.push(moveText);
+            currentTurn = currentTurn === "w" ? "b" : "w";
+            selected = null;
+            legalMoves = [];
+            render();
+        }
+
+        function getLegalMoves(row, col) {
+            const piece = board[row][col];
+            if (!piece) {
+                return [];
+            }
+
+            const color = getPieceColor(piece);
+            const type = getPieceType(piece);
+            const moves = [];
+
+            function pushMove(targetRow, targetCol) {
+                if (!inBounds(targetRow, targetCol)) {
+                    return;
+                }
+
+                const targetPiece = board[targetRow][targetCol];
+                if (!targetPiece) {
+                    moves.push({ row: targetRow, col: targetCol, capture: false });
+                    return;
+                }
+
+                if (getPieceColor(targetPiece) !== color) {
+                    moves.push({ row: targetRow, col: targetCol, capture: true });
+                }
+            }
+
+            function slide(directions) {
+                directions.forEach(([dRow, dCol]) => {
+                    let nextRow = row + dRow;
+                    let nextCol = col + dCol;
+
+                    while (inBounds(nextRow, nextCol)) {
+                        const targetPiece = board[nextRow][nextCol];
+                        if (!targetPiece) {
+                            moves.push({ row: nextRow, col: nextCol, capture: false });
+                        } else {
+                            if (getPieceColor(targetPiece) !== color) {
+                                moves.push({ row: nextRow, col: nextCol, capture: true });
+                            }
+                            break;
+                        }
+
+                        nextRow += dRow;
+                        nextCol += dCol;
+                    }
+                });
+            }
+
+            if (type === "p") {
+                const direction = color === "w" ? -1 : 1;
+                const startRow = color === "w" ? 6 : 1;
+                const oneStepRow = row + direction;
+
+                if (inBounds(oneStepRow, col) && !board[oneStepRow][col]) {
+                    moves.push({ row: oneStepRow, col, capture: false });
+
+                    const twoStepRow = row + direction * 2;
+                    if (row === startRow && !board[twoStepRow][col]) {
+                        moves.push({ row: twoStepRow, col, capture: false });
+                    }
+                }
+
+                [-1, 1].forEach((offset) => {
+                    const targetRow = row + direction;
+                    const targetCol = col + offset;
+                    if (!inBounds(targetRow, targetCol)) {
+                        return;
+                    }
+
+                    const targetPiece = board[targetRow][targetCol];
+                    if (targetPiece && getPieceColor(targetPiece) !== color) {
+                        moves.push({ row: targetRow, col: targetCol, capture: true });
+                    }
+                });
+            }
+
+            if (type === "r") {
+                slide([[1, 0], [-1, 0], [0, 1], [0, -1]]);
+            }
+
+            if (type === "b") {
+                slide([[1, 1], [1, -1], [-1, 1], [-1, -1]]);
+            }
+
+            if (type === "q") {
+                slide([
+                    [1, 0], [-1, 0], [0, 1], [0, -1],
+                    [1, 1], [1, -1], [-1, 1], [-1, -1]
+                ]);
+            }
+
+            if (type === "n") {
+                [
+                    [-2, -1], [-2, 1],
+                    [-1, -2], [-1, 2],
+                    [1, -2], [1, 2],
+                    [2, -1], [2, 1]
+                ].forEach(([dRow, dCol]) => pushMove(row + dRow, col + dCol));
+            }
+
+            if (type === "k") {
+                [
+                    [-1, -1], [-1, 0], [-1, 1],
+                    [0, -1],           [0, 1],
+                    [1, -1],  [1, 0],  [1, 1]
+                ].forEach(([dRow, dCol]) => pushMove(row + dRow, col + dCol));
+            }
+
+            return moves;
+        }
+
+        resetButton.addEventListener("click", resetGame);
+        resetGame();
+    </script>
 </body>
 </html>
