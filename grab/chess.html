@@ -7,61 +7,215 @@
     <title>간단 체스 웹</title>
     <style>
         :root {
-            --bg: #f3ede4;
-            --panel: #fffaf3;
-            --dark: #6b4f3a;
-            --light: #efe2c6;
-            --accent: #b7791f;
-            --text: #2f241d;
-            --shadow: 0 18px 40px rgba(47, 36, 29, 0.14);
+            --bg-top: #081221;
+            --bg-bottom: #13243c;
+            --panel: rgba(8, 18, 33, 0.72);
+            --panel-strong: rgba(10, 22, 40, 0.9);
+            --panel-border: rgba(172, 188, 214, 0.18);
+            --board-dark: #6a7487;
+            --board-light: #efe7d7;
+            --accent: #f3ba63;
+            --accent-soft: rgba(243, 186, 99, 0.16);
+            --text: #edf2ff;
+            --muted: rgba(237, 242, 255, 0.72);
+            --shadow: 0 28px 80px rgba(2, 7, 16, 0.52);
         }
 
         * {
             box-sizing: border-box;
         }
 
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        body::before {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(243, 186, 99, 0.18), transparent 22%),
+                radial-gradient(circle at 84% 12%, rgba(110, 169, 255, 0.16), transparent 24%),
+                radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 36%);
+        }
+
+        body::after {
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+            background-size: 46px 46px;
+            mask-image: radial-gradient(circle at center, black 35%, transparent 88%);
+            opacity: 0.55;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+            font-family: "Trebuchet MS", "Malgun Gothic", sans-serif;
             background:
-                radial-gradient(circle at top, rgba(255, 255, 255, 0.8), transparent 35%),
-                linear-gradient(180deg, #f9f3ea 0%, var(--bg) 100%);
+                radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 30%),
+                linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
             color: var(--text);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            padding: 26px;
         }
 
         .app {
-            width: min(100%, 980px);
-            background: rgba(255, 250, 243, 0.94);
-            border: 1px solid rgba(107, 79, 58, 0.18);
-            border-radius: 28px;
+            position: relative;
+            width: min(100%, 1120px);
+            background: linear-gradient(145deg, rgba(7, 16, 30, 0.95), rgba(15, 29, 50, 0.78));
+            border: 1px solid var(--panel-border);
+            border-radius: 34px;
             box-shadow: var(--shadow);
             display: grid;
-            grid-template-columns: minmax(280px, 560px) minmax(240px, 1fr);
-            gap: 24px;
-            padding: 24px;
+            grid-template-columns: minmax(320px, 1.15fr) minmax(280px, 0.85fr);
+            gap: 28px;
+            padding: 28px;
+            overflow: hidden;
+            animation: scene-in 0.55s ease;
+            backdrop-filter: blur(18px);
+        }
+
+        .app::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(243, 186, 99, 0.08), transparent 30%),
+                linear-gradient(315deg, rgba(110, 169, 255, 0.08), transparent 26%);
+            pointer-events: none;
         }
 
         .board-wrap {
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .board-stage {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .stage-badge {
+            flex-shrink: 0;
+            border: 1px solid rgba(243, 186, 99, 0.28);
+            background: rgba(243, 186, 99, 0.12);
+            color: #ffe8bf;
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .board-copy {
+            margin: 0;
+            max-width: 62ch;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .board-shell {
+            position: relative;
+            padding: 18px 18px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+                rgba(3, 9, 18, 0.68);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                0 18px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        .board-shell::after {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            pointer-events: none;
+        }
+
+        .file-labels {
+            margin-left: 42px;
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            gap: 0;
+            color: rgba(237, 242, 255, 0.62);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .file-labels.bottom {
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .file-labels span,
+        .rank-labels span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .board-frame {
+            display: grid;
+            grid-template-columns: 30px minmax(0, 1fr);
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .rank-labels {
+            display: grid;
+            grid-template-rows: repeat(8, minmax(0, 1fr));
+            color: rgba(237, 242, 255, 0.62);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
         }
 
         .board {
-            width: min(100%, 560px);
+            width: min(100%, 620px);
             aspect-ratio: 1 / 1;
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             grid-template-rows: repeat(8, 1fr);
-            border: 14px solid #4b3728;
-            border-radius: 18px;
+            border: 12px solid rgba(244, 226, 193, 0.16);
+            border-radius: 24px;
             overflow: hidden;
-            background: #4b3728;
+            background: rgba(12, 18, 28, 0.8);
+            box-shadow:
+                0 22px 50px rgba(1, 4, 12, 0.45),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.06);
         }
 
         .square {
@@ -72,102 +226,174 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            transition:
+                transform 0.16s ease,
+                box-shadow 0.16s ease,
+                filter 0.16s ease;
             padding: 0;
         }
 
         .square:hover {
-            transform: scale(0.98);
+            transform: scale(0.985);
             z-index: 1;
+            filter: brightness(1.04);
         }
 
         .square.light {
-            background: var(--light);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 65%),
+                var(--board-light);
         }
 
         .square.dark {
-            background: var(--dark);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 65%),
+                var(--board-dark);
         }
 
         .square.selected {
-            box-shadow: inset 0 0 0 4px rgba(255, 209, 102, 0.95);
+            box-shadow:
+                inset 0 0 0 4px rgba(243, 186, 99, 0.98),
+                inset 0 0 26px rgba(255, 255, 255, 0.14);
         }
 
         .square.movable::after {
             content: "";
             position: absolute;
-            width: 26%;
-            height: 26%;
+            width: 24%;
+            height: 24%;
             border-radius: 50%;
-            background: rgba(27, 94, 32, 0.62);
+            background: rgba(112, 233, 177, 0.72);
+            box-shadow: 0 0 24px rgba(112, 233, 177, 0.3);
         }
 
         .square.capture::after {
             content: "";
             position: absolute;
-            inset: 10%;
+            inset: 10px;
             border-radius: 50%;
-            border: 5px solid rgba(183, 34, 34, 0.9);
+            border: 4px solid rgba(255, 114, 114, 0.92);
+            box-shadow: 0 0 18px rgba(255, 114, 114, 0.28);
+        }
+
+        .piece {
+            transform: translateY(-1px);
+            transition: transform 0.16s ease;
+        }
+
+        .square:hover .piece {
+            transform: translateY(-3px);
         }
 
         .piece.white {
-            color: #fffdf8;
-            text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+            color: #fff8eb;
+            text-shadow:
+                0 2px 0 rgba(0, 0, 0, 0.2),
+                0 8px 18px rgba(0, 0, 0, 0.18);
         }
 
         .piece.black {
-            color: #1d130d;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
+            color: #18212f;
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.24),
+                0 8px 18px rgba(0, 0, 0, 0.12);
         }
 
         .side {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
+            position: relative;
+            z-index: 1;
         }
 
         .panel {
-            background: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(107, 79, 58, 0.12);
-            border-radius: 20px;
-            padding: 18px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
+                var(--panel);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 10px 24px rgba(0, 0, 0, 0.18);
         }
 
         h1 {
-            margin: 0 0 8px;
-            font-size: clamp(28px, 4vw, 40px);
+            margin: 0;
+            font-size: clamp(34px, 4vw, 52px);
+            line-height: 0.98;
+            font-family: "Georgia", "Times New Roman", serif;
+            letter-spacing: -0.03em;
+        }
+
+        .panel-kicker {
+            margin: 0 0 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .panel-heading {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 700;
         }
 
         .subtitle {
             margin: 0;
             line-height: 1.6;
-            color: rgba(47, 36, 29, 0.8);
+            color: var(--muted);
+        }
+
+        .status-panel {
+            background:
+                linear-gradient(135deg, rgba(243, 186, 99, 0.12), transparent 55%),
+                var(--panel-strong);
+        }
+
+        .status-label {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: #ffe8bf;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         .status {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 700;
+            margin-bottom: 10px;
         }
 
         .status.turn-white {
-            color: #22543d;
+            color: #f5f8ff;
         }
 
         .status.turn-black {
-            color: #742a2a;
+            color: #ffe0cf;
         }
 
         .moves {
             margin: 0;
             padding-left: 18px;
             line-height: 1.7;
-            max-height: 260px;
+            max-height: 280px;
             overflow: auto;
+            color: var(--muted);
         }
 
         .moves:empty::before {
             content: "아직 이동 기록이 없습니다.";
-            color: rgba(47, 36, 29, 0.6);
+            color: rgba(237, 242, 255, 0.56);
         }
 
         .controls {
@@ -179,38 +405,70 @@
         .controls button {
             border: none;
             border-radius: 999px;
-            padding: 12px 18px;
+            padding: 13px 20px;
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            background: #2f241d;
-            color: #fffaf3;
-            transition: transform 0.12s ease, opacity 0.12s ease;
+            background: linear-gradient(135deg, #f3ba63, #d48927);
+            color: #1e160d;
+            box-shadow: 0 12px 24px rgba(212, 137, 39, 0.28);
+            transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
         }
 
         .controls button:hover {
-            transform: translateY(-1px);
-            opacity: 0.92;
+            transform: translateY(-2px);
+            opacity: 0.96;
+            box-shadow: 0 18px 30px rgba(212, 137, 39, 0.34);
         }
 
         .hint {
             margin: 0;
             font-size: 14px;
             line-height: 1.6;
-            color: rgba(47, 36, 29, 0.72);
+            color: var(--muted);
         }
 
         .legend {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            min-height: 64px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             font-size: 14px;
-            color: rgba(47, 36, 29, 0.75);
+            line-height: 1.5;
+            color: var(--muted);
+        }
+
+        .moves li + li {
+            margin-top: 6px;
+        }
+
+        @keyframes scene-in {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 860px) {
             .app {
                 grid-template-columns: 1fr;
+            }
+
+            .board {
+                width: 100%;
             }
         }
 
@@ -221,11 +479,44 @@
 
             .app {
                 padding: 16px;
-                border-radius: 22px;
+                border-radius: 24px;
+                gap: 18px;
             }
 
             .panel {
                 padding: 14px;
+            }
+
+            .board-shell {
+                padding: 12px;
+            }
+
+            .board-frame {
+                grid-template-columns: 22px minmax(0, 1fr);
+                gap: 8px;
+            }
+
+            .file-labels {
+                margin-left: 30px;
+                margin-bottom: 8px;
+                font-size: 10px;
+            }
+
+            .file-labels.bottom {
+                margin-top: 8px;
+            }
+
+            .rank-labels {
+                font-size: 10px;
+            }
+
+            .legend {
+                grid-template-columns: 1fr;
+            }
+
+            .stage-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -233,36 +524,73 @@
 <body>
     <main class="app">
         <section class="board-wrap">
-            <div class="board" id="board" aria-label="체스판"></div>
+            <div class="board-stage">
+                <div class="stage-header">
+                    <div>
+                        <p class="eyebrow">Mini Match</p>
+                        <h1>간단 체스 웹</h1>
+                    </div>
+                    <div class="stage-badge">Browser Chess</div>
+                </div>
+
+                <p class="board-copy">
+                    군더더기 없이 바로 두어볼 수 있는 싱글 페이지 체스판입니다.
+                    화면 분위기만 더 세련되게 다듬고, 플레이 흐름은 그대로 유지했습니다.
+                </p>
+
+                <div class="board-shell">
+                    <div class="file-labels top">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+
+                    <div class="board-frame">
+                        <div class="rank-labels">
+                            <span>8</span><span>7</span><span>6</span><span>5</span>
+                            <span>4</span><span>3</span><span>2</span><span>1</span>
+                        </div>
+                        <div class="board" id="board" aria-label="체스판"></div>
+                    </div>
+
+                    <div class="file-labels bottom">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <aside class="side">
             <section class="panel">
-                <h1>간단 체스 웹</h1>
+                <p class="panel-kicker">Quick Start</p>
                 <p class="subtitle">
                     말 클릭 후 이동 가능한 칸을 다시 누르면 이동합니다.
                     체크, 캐슬링, 앙파상은 제외한 가벼운 체험용 체스입니다.
                 </p>
             </section>
 
-            <section class="panel">
+            <section class="panel status-panel">
+                <div class="status-label">Current Turn</div>
                 <div class="status turn-white" id="status">백 차례입니다.</div>
                 <p class="hint" id="selectionHint">움직일 말을 선택해 주세요.</p>
             </section>
 
             <section class="panel">
+                <p class="panel-kicker">Control</p>
                 <div class="controls">
                     <button type="button" id="resetButton">초기화</button>
                 </div>
             </section>
 
             <section class="panel">
-                <strong>이동 기록</strong>
+                <p class="panel-kicker">Timeline</p>
+                <strong class="panel-heading">이동 기록</strong>
                 <ol class="moves" id="moveList"></ol>
             </section>
 
             <section class="panel">
-                <strong>빠른 안내</strong>
+                <p class="panel-kicker">Guide</p>
+                <strong class="panel-heading">빠른 안내</strong>
                 <div class="legend">
                     <span>노란 테두리: 선택한 말</span>
                     <span>초록 점: 이동 가능</span>
